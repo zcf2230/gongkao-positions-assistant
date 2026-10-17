@@ -50,6 +50,17 @@ const FILTER_DEFAULTS = {
 /* 机关级汇总条目：position 固定为「财经类综合岗位（机关汇总）」，不是可投递的具体职位 */
 const isAggregate = p => /汇总/.test(String(p.position || ''));
 
+/* 考试类型 → 标签配色（与 style.css 的 .tag.exam-* 对应） */
+const EXAM_CLS = {
+  '国考': 'exam-guokao',
+  '浙江选调': 'exam-xuandiao',
+  '浙江省考': 'exam-zhejiang',
+  '山东省考': 'exam-shandong',
+  '上海市考': 'exam-shanghai'
+};
+const examCls = exam => `tag ${EXAM_CLS[exam] || 'gray'}`;
+const fmtNum = n => (n == null || isNaN(n)) ? '—' : Number(n).toLocaleString('zh-CN');
+
 /* ---------------- 地区常量 ---------------- */
 const PROV_CITIES = {
   '浙江': ['杭州', '宁波', '温州', '嘉兴', '湖州', '绍兴', '金华', '衢州', '舟山', '台州', '丽水'],
@@ -349,7 +360,7 @@ function renderResults() {
   const note = document.getElementById('tableNote');
   if (note) {
     if (list.length > RENDER_LIMIT) {
-      note.innerHTML = `⚠️ 结果共 <b>${list.length}</b> 条，表格仅显示前 <b>${RENDER_LIMIT}</b> 条。点「⬇ 导出 Excel」可拿到全部 ${list.length} 条，或补充筛选条件缩小范围。`;
+      note.innerHTML = `⚠️ 结果共 <b>${list.length}</b> 条，表格仅显示前 <b>${RENDER_LIMIT}</b> 条。点「导出 Excel」可拿到全部 ${list.length} 条，或补充筛选条件缩小范围。`;
       note.classList.remove('hidden');
     } else {
       note.classList.add('hidden');
@@ -388,19 +399,48 @@ function renderResults() {
       : '';
     return `<tr data-uid="${esc(p.uid)}">
       <td><span class="fav-star ${fav ? 'on' : ''}" data-act="fav" title="收藏/取消收藏">★</span></td>
-      <td><span class="tag">${esc(p.exam)}</span><span class="tag gray">${esc(p.year)}</span></td>
+      <td><span class="${examCls(p.exam)}">${esc(p.exam)}</span><span class="tag gray">${esc(p.year)}</span></td>
       <td class="dept">${linkify(p.dept, p, '')}</td>
       <td class="pos-name">${linkify(p.position, p, '')}${aggTag}</td>
       <td title="${esc(p.location || '')}">${esc(p.location || '')}</td>
       <td>${p.quota ?? '-'}</td>
-      <td>${p.applicants ?? '<span class="muted">未公布</span>'}</td>
+      <td title="${p.applicants == null ? '官方未公布该岗位报名人数' : '报名人数'}">${p.applicants ?? '—'}</td>
       <td class="${ratioClass(p.ratio)}">${p.ratio ? p.ratio + ' : 1' : '-'}</td>
       <td>${scoreCell(p)}</td>
       <td>${finTag(p)}</td>
       <td class="major-cell" title="${esc(p.major || '')}">${esc(p.major || '')}</td>
-      <td><label class="toggle" style="font-size:12px"><input type="checkbox" data-act="cmp" ${inCmp ? 'checked' : ''}>对比</label></td>
+      <td style="text-align:center"><label class="toggle" title="加入对比（最多 4 个）"><input type="checkbox" data-act="cmp" ${inCmp ? 'checked' : ''}></label></td>
     </tr>`;
   }).join('');
+
+  /* 统计条：让「这一屏结果的成色」一眼可见，不用再去看筛选后的行数 */
+  const withRatio = list.filter(p => p.ratio).map(p => +p.ratio);
+  const avgRatio = withRatio.length
+    ? Math.round(withRatio.reduce((a, b) => a + b, 0) / withRatio.length)
+    : null;
+  // 最低进面分只在「同口径」里取最小：山东是 100 分制笔试成绩、国考特殊专业职位是 100 分制折合分，
+  // 混进 200 分制（浙江/国考普通职位）里取最小会得出「59.4 分很好考」的错误结论。
+  const comparable = list
+    .filter(p => p.entryScore != null && p.exam !== '山东省考' && !isFoldedScore(p))
+    .map(p => +p.entryScore);
+  const allScored = list.filter(p => p.entryScore != null).map(p => +p.entryScore);
+  const minScore = comparable.length ? Math.min(...comparable) : (allScored.length ? Math.min(...allScored) : null);
+  const totalQuota = list.reduce((a, p) => a + (Number(p.quota) || 0), 0);
+  const setHtml = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  setHtml('stTotal', fmtNum(list.length));
+  setHtml('stFin', fmtNum(list.filter(p => p.financeOk === true).length));
+  setHtml('stScore', fmtNum(list.filter(p => p.entryScore != null).length));
+  setHtml('stRatio', avgRatio == null ? '—' : `${fmtNum(avgRatio)}<small>: 1</small>`);
+  setHtml('stMin', minScore == null ? '—' : `${minScore}<small>分</small>`);
+  const stMinEl = document.getElementById('stMin');
+  if (stMinEl) {
+    stMinEl.parentElement.title = comparable.length
+      ? '口径：仅统计 200 分制岗位（浙江省考、国考普通职位），不含山东 100 分制与国考折合分'
+      : '当前结果中没有 200 分制进面分，退而取全部口径的最小值，跨省不可直接比较';
+  }
+  setHtml('stQuota', `${fmtNum(totalQuota)}<small>人</small>`);
+  const tabCount = document.getElementById('tabCount');
+  if (tabCount) tabCount.textContent = fmtNum(list.length);
 }
 
 /* ---------------- 导出 Excel ---------------- */
@@ -530,13 +570,13 @@ function syncSortHeaders() {
 
 /* ---------------- 竞争度分析 ---------------- */
 function renderAnalysis() {
-  const cards = datasets.filter(d => !d._custom).map(d => {
+  const cards = datasets.filter(d => !d._custom && (d.positions || []).length > 0).map(d => {
     const o = d.overallStats || {};
     const posCount = (d.positions || []).length;
     const finCount = (d.positions || []).filter(p => p.financeOk).length;
     return `<div class="stat-card">
       <div class="name">${esc(d.exam)}<span class="year">${esc(d.year)}年度</span></div>
-      <div class="big">${o.avgRatio ? esc(o.avgRatio) + ' : 1' : '—'}</div>
+      <div class="big ${o.avgRatio ? '' : 'na'}">${o.avgRatio ? esc(o.avgRatio) + ' : 1' : '不公布'}</div>
       <div class="sub">
         ${o.totalQuota ? `计划招录 <b>${esc(o.totalQuota)}</b> 人<br>` : ''}
         ${o.totalApplicants ? `报名 <b>${esc(o.totalApplicants)}</b> 人<br>` : ''}
@@ -1039,6 +1079,7 @@ function toggleFav(uid) {
   saveLS(LS.fav, favorites);
   renderResults();
   renderFavs();
+  updateShell();
 }
 function toggleCompare(uid, on) {
   if (on) { if (!compareList.includes(uid)) { if (compareList.length >= 4) { alert('最多同时对比 4 个岗位'); return false; } compareList.push(uid); } }
@@ -1048,6 +1089,41 @@ function toggleCompare(uid, on) {
 }
 
 /* ---------------- 启动 ---------------- */
+// 侧栏「数据快照」与页头统计：只依赖已加载完的全局状态，随数据集变化刷新
+function updateShell() {
+  const builtin = datasets.filter(d => !d._custom);
+  // 按考试名称去重（国考 2026 与 2027 是两个数据集，但对用户只是「一类考试」），
+  // 且排除尚无职位的空数据集（如刚接入、职位表未发布的国考 2027）
+  const examNames = [...new Set(builtin.filter(d => (d.positions || []).length > 0).map(d => d.exam))];
+  const snapDate = document.getElementById('snapDate');
+  if (snapDate) snapDate.textContent = dataUpdatedAt ? localDateStr(dataUpdatedAt) : '—';
+  const snapCount = document.getElementById('snapCount');
+  if (snapCount) snapCount.textContent = `${fmtNum(allPositions.length)} 个职位 · ${examNames.length} 类考试`;
+  const hExam = document.getElementById('hExamCount');
+  if (hExam) hExam.textContent = examNames.length;
+  const hCov = document.getElementById('hCoverage');
+  if (hCov) {
+    hCov.textContent = allPositions.length
+      ? Math.round(allPositions.filter(p => p.source).length / allPositions.length * 100) + '%'
+      : '—';
+  }
+  // 数据来源数 = 去重后的来源域名数（比"文件数"更能反映真实来源广度）
+  const hSrc = document.getElementById('hSourceCount');
+  if (hSrc) {
+    const hosts = new Set();
+    allPositions.forEach(p => {
+      if (!p.source) return;
+      try { hosts.add(new URL(p.source).hostname); } catch (e) { /* 非法 URL 忽略 */ }
+    });
+    hSrc.textContent = hosts.size || '—';
+  }
+  const favCount = document.getElementById('tabFavCount');
+  if (favCount) {
+    favCount.textContent = favorites.length;
+    favCount.classList.toggle('hidden', favorites.length === 0);   // 收藏为 0 时不显示角标
+  }
+}
+
 function bootstrap(first) {
   loadBuiltins();
   fillRegionSelect();
@@ -1060,6 +1136,7 @@ function bootstrap(first) {
   renderReviews();
   renderPrep();
   renderDataSummary();
+  updateShell();
   if (first) {
     bindEvents();
     checkReminders();
