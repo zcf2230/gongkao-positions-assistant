@@ -14,6 +14,13 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<!-- 启动骨架屏：app.js 异步加载数据期间显示，加载完成后由 removeBootSplash() 淡出 -->
+<div id="bootSplash" aria-hidden="true">
+  <div class="boot-logo">公</div>
+  <div class="boot-title">考公岗位信息助手</div>
+  <div class="boot-bar"><i></i></div>
+  <div class="boot-tip" id="bootTip">正在加载岗位数据…</div>
+</div>
 <div class="shell">
 
   <!-- ==================== 左栏 ==================== -->

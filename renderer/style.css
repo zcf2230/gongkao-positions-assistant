@@ -728,3 +728,33 @@ html[data-theme="dark"] .theme-seg button.on {
   box-shadow: none;
 }
 .side-links.meta { padding-top: 8px; }
+
+/* ===================== 启动骨架屏 ===================== */
+#bootSplash {
+  position: fixed; inset: 0; z-index: 200;
+  background: var(--paper);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px;
+  transition: opacity .3s ease;
+}
+#bootSplash.done { opacity: 0; pointer-events: none; }
+.boot-logo {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: var(--forest); color: var(--lime);
+  display: grid; place-items: center;
+  font-size: 26px; font-weight: 700;
+  animation: bootPulse 1.2s ease-in-out infinite;
+}
+.boot-title { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+.boot-bar {
+  width: 180px; height: 4px; border-radius: 2px;
+  background: var(--line); overflow: hidden;
+}
+.boot-bar i {
+  display: block; height: 100%; width: 40%;
+  border-radius: 2px; background: var(--lime);
+  animation: bootSlide 1.1s ease-in-out infinite;
+}
+.boot-tip { font-size: 11.5px; color: var(--ink-3); }
+@keyframes bootPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+@keyframes bootSlide { 0% { margin-left: -40%; } 100% { margin-left: 100%; } }

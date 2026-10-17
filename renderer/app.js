@@ -1,5 +1,6 @@
 /* 考公岗位信息助手 - 渲染进程逻辑 */
 const fs = require('fs');
+const fsp = fs.promises;
 const path = require('path');
 const { shell, ipcRenderer } = require('electron');
 
@@ -134,26 +135,31 @@ function parseRange(s) {
 }
 
 /* ---------------- 数据加载 ---------------- */
-function loadBuiltins() {
+async function loadBuiltins() {
   loadIssues = [];
+  // ⚠️ 必须异步并行读：之前用 readFileSync 同步读 18MB，渲染主线程被堵 2-3 秒，
+  // 窗口已显示但页面画不出来 = 用户看到的「启动白屏」。数据量只会越来越大。
   const raws = [];
   let latest = 0;
-  for (const f of BUILTIN_FILES) {
+  const results = await Promise.all(BUILTIN_FILES.map(async f => {
     const fp = path.join(DATA_DIR, f);
-    if (!fs.existsSync(fp)) {
-      loadIssues.push({ file: f, type: 'missing', msg: '文件不存在（数据待补齐）' });
-      continue;
-    }
     try {
-      const d = JSON.parse(fs.readFileSync(fp, 'utf8'));
+      const [txt, st] = await Promise.all([fsp.readFile(fp, 'utf8'), fsp.stat(fp)]);
+      const d = JSON.parse(txt);
       d._file = f;
-      raws.push(d);
-      const mt = fs.statSync(fp).mtimeMs;
-      if (mt > latest) latest = mt;
+      return { d, mt: st.mtimeMs };
     } catch (e) {
       // 绝不静默吞掉：JSON 写坏会让整份数据凭空消失，必须让用户看见
-      loadIssues.push({ file: f, type: 'error', msg: '解析失败：' + e.message });
+      loadIssues.push(e.code === 'ENOENT'
+        ? { file: f, type: 'missing', msg: '文件不存在（数据待补齐）' }
+        : { file: f, type: 'error', msg: '解析失败：' + e.message });
+      return null;
     }
+  }));
+  for (const r of results) {
+    if (!r) continue;
+    raws.push(r.d);
+    if (r.mt > latest) latest = r.mt;
   }
   dataUpdatedAt = latest ? new Date(latest) : null;
 
@@ -1395,8 +1401,8 @@ function updateShell() {
   }
 }
 
-function bootstrap(first) {
-  loadBuiltins();
+async function bootstrap(first) {
+  await loadBuiltins();
   fillRegionSelect();
   // P4：开关打开时恢复上次筛选；否则恢复出厂默认（applyFilterDefaults 同时服务「重置条件」）
   if (first) {
@@ -1417,6 +1423,20 @@ function bootstrap(first) {
     bindEvents();
     checkReminders();
   }
+  removeBootSplash();
 }
 
-document.addEventListener('DOMContentLoaded', () => bootstrap(true));
+/* 启动骨架屏：数据加载完成（或失败，横幅会提示）后淡出移除 */
+function removeBootSplash() {
+  const sp = document.getElementById('bootSplash');
+  if (!sp) return;
+  sp.classList.add('done');
+  setTimeout(() => sp.remove(), 350);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  bootstrap(true).catch(e => {
+    console.error('启动失败：', e);
+    try { removeBootSplash(); } catch (e2) {}
+  });
+});
