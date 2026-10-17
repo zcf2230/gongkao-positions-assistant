@@ -468,11 +468,29 @@ function exportExcel() {
     '政治面貌': p.political || '', '基层年限': p.baseYears || '',
     '备注': p.notes || '', '来源': p.source || ''
   }));
-  const ws = XLSX.utils.json_to_sheet(rows);
+  // xlsx 库在两种环境挂载位置不同：
+  //   桌面（nodeIntegration）：走 CommonJS -> require('./lib/xlsx.full.min.js') 拿完整库，
+  //     全局 XLSX 是空壳（这就是之前「导出没反应」的根因——writeFile 把文件静默写进了进程目录）
+  //   网页浏览器：UMD 挂 window.XLSX（完整库）
+  const xl = (typeof XLSX !== 'undefined' && XLSX.utils) ? XLSX
+    : (() => { try { return require('./lib/xlsx.full.min.js'); } catch (e) { return null; } })();
+  if (!xl || !xl.utils) { alert('表格组件尚未加载完成，请重启应用后重试'); return; }
+  const ws = xl.utils.json_to_sheet(rows);
   ws['!cols'] = [{ wch: 10 }, { wch: 6 }, { wch: 32 }, { wch: 22 }, { wch: 20 }, { wch: 14 }, { wch: 8 }, { wch: 9 }, { wch: 9 }, { wch: 7 }, { wch: 14 }, { wch: 30 }, { wch: 8 }, { wch: 10 }, { wch: 10 }, { wch: 30 }, { wch: 30 }];
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, '岗位');
-  XLSX.writeFile(wb, `考公岗位导出_${localDateStr()}.xlsx`);
+  const wb = xl.utils.book_new();
+  xl.utils.book_append_sheet(wb, ws, '岗位');
+  // 显式 Blob 下载，两端行为一致：
+  // 桌面（Electron）走 will-download 弹保存对话框；网页走浏览器下载。
+  // 之前用 XLSX.writeFile：桌面端被 xlsx 库判成 Node 环境，文件被静默写到进程工作目录，
+  // 界面毫无反应（用户以为导出失败）；网页端行为又与手机浏览器相关。
+  const wbout = xl.write(wb, { bookType: 'xlsx', type: 'array' });
+  const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `考公岗位导出_${localDateStr()}.xlsx`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
 }
 
 /* ---------------- 详情弹窗 ---------------- */
