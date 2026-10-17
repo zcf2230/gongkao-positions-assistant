@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>考公岗位信息助手 · 界面改版预览 v2</title>
+<style>
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --surface-2: #fbfcfd;
+  --border: #e8eaee;
+  --border-strong: #d8dce3;
+  --text: #16181d;
+  --text-2: #5a6270;
+  --text-3: #8d95a3;
+  --brand: #1a56db;
+  --brand-soft: #eef3fe;
+  --ok: #128a4d;
+  --ok-soft: #e8f6ee;
+  --warn: #b45309;
+  --warn-soft: #fdf3e3;
+  --danger: #c9262d;
+  --danger-soft: #fdecec;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgba(16, 24, 40, .04), 0 1px 3px rgba(16, 24, 40, .06);
+  --exam-guokao: #2563eb;
+  --exam-xuandiao: #7c3aed;
+  --exam-zj: #0d8b7d;
+  --exam-sd: #c2570c;
+  --exam-sh: #b8336a;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 13px/1.55 "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.num { font-variant-numeric: tabular-nums; }
+
+/* ---------- 顶栏 ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  display: flex; align-items: center; gap: 14px;
+  height: 56px; padding: 0 22px;
+  background: rgba(255,255,255,.86);
+  backdrop-filter: saturate(180%) blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.logo {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: linear-gradient(145deg, #2b6cf6, #1a45c4);
+  color: #fff; font-weight: 700; font-size: 15px;
+  display: grid; place-items: center;
+  box-shadow: 0 2px 6px rgba(26,86,219,.28);
+}
+.brand h1 { font-size: 15px; font-weight: 650; margin: 0; letter-spacing: -.01em; }
+.brand .sub { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+.top-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.meta-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 28px; padding: 0 10px; border-radius: 999px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  font-size: 11.5px; color: var(--text-2);
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); }
+
+/* ---------- 导航 ---------- */
+.nav {
+  display: flex; gap: 2px; padding: 0 18px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+}
+.nav button {
+  position: relative; appearance: none; border: 0; background: none;
+  padding: 12px 14px 11px; font: inherit; font-size: 13px; color: var(--text-2);
+  cursor: pointer; border-radius: 8px 8px 0 0; transition: color .15s, background .15s;
+}
+.nav button:hover { color: var(--text); background: var(--surface-2); }
+.nav button.active { color: var(--brand); font-weight: 600; }
+.nav button.active::after {
+  content: ""; position: absolute; left: 10px; right: 10px; bottom: -1px;
+  height: 2px; background: var(--brand); border-radius: 2px 2px 0 0;
+}
+.nav .count {
+  display: inline-block; margin-left: 6px; padding: 0 6px; height: 16px; line-height: 16px;
+  border-radius: 8px; background: var(--brand-soft); color: var(--brand);
+  font-size: 10.5px; font-weight: 600; vertical-align: 1px;
+}
+
+/* ---------- 布局 ---------- */
+main { max-width: 1320px; margin: 0 auto; padding: 16px 22px 40px; }
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+}
+
+/* ---------- 筛选区 ---------- */
+.filters { padding: 14px 16px 12px; }
+.f-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.f-row + .f-row { margin-top: 11px; padding-top: 11px; border-top: 1px dashed var(--border); }
+.f-label {
+  font-size: 11px; color: var(--text-3); font-weight: 600;
+  letter-spacing: .04em; text-transform: uppercase;
+  min-width: 58px; flex: none;
+}
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 30px; padding: 0 12px; border-radius: 999px;
+  border: 1px solid var(--border-strong); background: var(--surface);
+  font-size: 12.5px; color: var(--text-2); cursor: pointer;
+  transition: all .15s ease; user-select: none;
+}
+.chip:hover { border-color: var(--text-3); color: var(--text); }
+.chip .x-unused {
+  width: 13px; height: 13px; border-radius: 50%; background: rgba(255,255,255,.28);
+  display: grid; place-items: center; font-size: 9px; opacity: .9;
+}
+.chip.on { background: var(--brand); border-color: var(--brand); color: #fff; font-weight: 550; box-shadow: 0 1px 3px rgba(26,86,219,.25); }
+.chip.on[data-exam="国考"] { background: var(--exam-guokao); border-color: var(--exam-guokao); box-shadow: 0 1px 3px rgba(37,99,235,.25); }
+.chip.on[data-exam="浙江选调"] { background: var(--exam-xuandiao); border-color: var(--exam-xuandiao); box-shadow: 0 1px 3px rgba(124,58,237,.25); }
+.chip.on[data-exam="浙江省考"] { background: var(--exam-zj); border-color: var(--exam-zj); box-shadow: 0 1px 3px rgba(13,139,125,.25); }
+.chip.on[data-exam="山东省考"] { background: var(--exam-sd); border-color: var(--exam-sd); box-shadow: 0 1px 3px rgba(194,87,12,.25); }
+.chip.on[data-exam="上海市考"] { background: var(--exam-sh); border-color: var(--exam-sh); box-shadow: 0 1px 3px rgba(184,51,106,.25); }
+
+select, input[type="text"] {
+  height: 32px; padding: 0 10px; border-radius: 8px;
+  border: 1px solid var(--border-strong); background: var(--surface);
+  font: inherit; font-size: 12.5px; color: var(--text); outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+select:focus, input[type="text"]:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(26,86,219,.12); }
+input[type="text"] { width: 190px; }
+select { padding-right: 26px; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M1 3l4 4 4-4' fill='none' stroke='%238d95a3' stroke-width='1.4' stroke-linecap='round'/></svg>"); background-repeat: no-repeat; background-position: right 9px center; appearance: none; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 32px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--border-strong);
+  background: var(--surface); font: inherit; font-size: 12.5px; font-weight: 550;
+  color: var(--text-2); cursor: pointer; transition: all .15s;
+}
+.btn:hover { border-color: var(--text-3); color: var(--text); background: var(--surface-2); }
+.btn.primary {
+  background: var(--brand); border-color: var(--brand); color: #fff;
+  box-shadow: 0 1px 3px rgba(26,86,219,.28);
+}
+.btn.primary:hover { background: #1748bd; border-color: #1748bd; }
+.btn svg { width: 13px; height: 13px; }
+.spacer { flex: 1; }
+.link-btn { background: none; border: 0; color: var(--brand); font: inherit; font-size: 12.5px; cursor: pointer; }
+.link-btn:hover { text-decoration: underline; }
+
+/* ---------- KPI ---------- */
+.kpi {
+  display: flex; align-items: stretch; margin: 12px 0;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
+}
+.kpi-item { flex: 1; padding: 11px 16px; border-right: 1px solid var(--border); }
+.kpi-item:last-child { border-right: 0; }
+.kpi-label { font-size: 11px; color: var(--text-3); margin-bottom: 2px; }
+.kpi-value { font-size: 19px; font-weight: 650; letter-spacing: -.02em; line-height: 1.2; }
+.kpi-value small { font-size: 12.5px; font-weight: 500; color: var(--text-3); margin-left: 2px; }
+.kpi-value.brand { color: var(--brand); }
+.kpi-value.ok { color: var(--ok); }
+.kpi-value.warn { color: var(--warn); }
+
+/* ---------- 表格 ---------- */
+.table-card { overflow: hidden; }
+.table-scroll { max-height: calc(100vh - 350px); overflow: auto; }
+table { width: 100%; border-collapse: separate; border-spacing: 0; }
+thead th {
+  position: sticky; top: 0; z-index: 5;
+  background: var(--surface-2); border-bottom: 1px solid var(--border);
+  padding: 9px 10px; text-align: left;
+  font-size: 11px; font-weight: 650; color: var(--text-3);
+  letter-spacing: .03em; white-space: nowrap;
+}
+thead th.sortable { cursor: pointer; }
+thead th.sortable:hover { color: var(--text-2); }
+tbody td {
+  padding: 10px; border-bottom: 1px solid #f0f2f5;
+  font-size: 12.5px; vertical-align: middle;
+}
+tbody tr { transition: background .12s; }
+tbody tr:hover { background: #fafbfc; }
+tbody tr:hover td:first-child { box-shadow: inset 2px 0 0 var(--brand); }
+.dept { font-weight: 600; color: var(--text); }
+.pos { color: var(--text-2); }
+.pos-sub { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+.major-cell {
+  max-width: 210px; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; color: var(--text-2); font-size: 12px;
+}
+
+.pill {
+  display: inline-block; padding: 1px 7px; border-radius: 5px;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+.pill.guokao { background: #eaf0fe; color: var(--exam-guokao); }
+.pill.xuandiao { background: #f2ecfe; color: var(--exam-xuandiao); }
+.pill.zj { background: #e6f6f3; color: var(--exam-zj); }
+.pill.sd { background: #fdf0e4; color: var(--exam-sd); }
+.pill.sh { background: #fcecf3; color: var(--exam-sh); }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.muted { background: #f0f2f5; color: var(--text-3); }
+
+.ratio { font-weight: 650; font-variant-numeric: tabular-nums; }
+.ratio.low { color: var(--ok); }
+.ratio.mid { color: var(--warn); }
+.ratio.hot { color: var(--danger); }
+
+.score-wrap { display: flex; align-items: center; gap: 7px; }
+.score { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 40px; }
+.score-bar { width: 42px; height: 4px; border-radius: 2px; background: #eef0f4; overflow: hidden; }
+.score-bar > i { display: block; height: 100%; border-radius: 2px; background: linear-gradient(90deg, #9dc0ff, var(--brand)); }
+.score-bar.low > i { background: linear-gradient(90deg, #9fd9b8, var(--ok)); }
+.score-bar.hot > i { background: linear-gradient(90deg, #f3b3b5, var(--danger)); }
+
+.star {
+  border: 0; background: none; cursor: pointer; padding: 2px; line-height: 0;
+  color: #cfd5de; transition: color .15s, transform .15s;
+}
+.star:hover { color: #f0b429; transform: scale(1.15); }
+.star.on { color: #f0b429; }
+.star svg { width: 15px; height: 15px; }
+
+.cmp { width: 14px; height: 14px; accent-color: var(--brand); cursor: pointer; }
+
+.table-note {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 16px; border-top: 1px solid var(--border);
+  background: #fffdf5; color: var(--warn); font-size: 12px;
+}
+.table-note .badge { background: var(--warn-soft); border-radius: 4px; padding: 1px 6px; font-weight: 650; }
+
+.foot-note { margin-top: 10px; font-size: 11.5px; color: var(--text-3); line-height: 1.7; }
+.foot-note b { color: var(--text-2); }
+
+/* 预览标记 */
+.preview-flag {
+  position: fixed; right: 16px; bottom: 16px; z-index: 60;
+  background: #16181d; color: #fff; font-size: 11.5px;
+  padding: 8px 13px; border-radius: 999px; box-shadow: 0 6px 20px rgba(0,0,0,.22);
+  opacity: .92;
+}
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d5d9e0; border-radius: 6px; border: 2px solid var(--surface); }
+::-webkit-scrollbar-thumb:hover { background: #c2c8d2; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">公</span>
+    <div>
+      <h1>考公岗位信息助手</h1>
+      <div class="sub">国考 · 浙江选调 · 浙江省考 · 山东省考 · 上海市考</div>
+    </div>
+  </div>
+  <div class="top-right">
+    <span class="meta-pill"><span class="dot"></span>数据更新 2026-10-17</span>
+    <span class="meta-pill">14,160 个职位</span>
+  </div>
+</header>
+
+<nav class="nav">
+  <button class="active">岗位查询<span class="count">1255</span></button>
+  <button>竞争度分析</button>
+  <button>对比与收藏<span class="count">3</span></button>
+  <button>备考辅助</button>
+  <button>数据管理</button>
+</nav>
+
+<main>
+  <section class="card filters">
+    <div class="f-row">
+      <span class="f-label">考试</span>
+      <span class="chip on" data-exam="国考">国考</span>
+      <span class="chip on" data-exam="浙江选调">浙江选调</span>
+      <span class="chip on" data-exam="浙江省考">浙江省考</span>
+      <span class="chip on" data-exam="山东省考">山东省考</span>
+      <span class="chip on" data-exam="上海市考">上海市考</span>
+      <span class="chip">自定义导入</span>
+    </div>
+    <div class="f-row">
+      <span class="f-label">条件</span>
+      <select><option>全部地区</option><option>浙江 · 杭州</option><option>浙江 · 宁波</option><option>山东 · 青岛</option></select>
+      <input type="text" value="金融" placeholder="专业关键词">
+      <select><option>本科可报</option><option>不限</option><option>要求硕士</option></select>
+      <select><option>政治面貌不限</option><option>中共党员</option><option>共青团员</option></select>
+      <select><option>基层年限不限</option><option>无限制</option><option>2 年以上</option></select>
+      <input type="text" placeholder="部门 / 职位 / 地点，如：税务局 杭州" style="width:260px">
+      <label style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-2);margin-left:2px">
+        <input type="checkbox" class="cmp"> 只看已收藏
+      </label>
+    </div>
+    <div class="f-row">
+      <button class="btn primary">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4.6"/><path d="M10.4 10.4L14 14" stroke-linecap="round"/></svg>
+        查询
+      </button>
+      <button class="btn">重置条件</button>
+      <button class="btn">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2v8m0 0l3-3m-3 3L5 7" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 11.5v1a1.5 1.5 0 001.5 1.5h8a1.5 1.5 0 001.5-1.5v-1" stroke-linecap="round"/></svg>
+        导出 Excel
+      </button>
+      <div class="spacer"></div>
+      <span style="font-size:12px;color:var(--text-3)">排序</span>
+      <select style="width:130px"><option>默认（按考试）</option><option>竞争比 低→高</option><option>进面分 高→低</option></select>
+    </div>
+  </section>
+
+  <div class="kpi">
+    <div class="kpi-item">
+      <div class="kpi-label">匹配职位</div>
+      <div class="kpi-value brand num">1,255<small>个</small></div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-label">金融可报</div>
+      <div class="kpi-value ok num">1,213<small>个</small></div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-label">有逐岗进面分</div>
+      <div class="kpi-value num">968<small>个</small></div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-label">平均竞争比（有数据岗）</div>
+      <div class="kpi-value warn num">68<small>: 1</small></div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-label">最低进面分</div>
+      <div class="kpi-value num">98.4<small>分</small></div>
+    </div>
+  </div>
+
+  <section class="card table-card">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:34px"></th>
+            <th style="width:86px">考试</th>
+            <th>招录机关 / 职位</th>
+            <th style="width:120px">地区</th>
+            <th style="width:52px;text-align:right">招录</th>
+            <th style="width:66px;text-align:right">报名</th>
+            <th style="width:74px;text-align:right">竞争比</th>
+            <th style="width:104px">进面分</th>
+            <th style="width:58px">金融可报</th>
+            <th>专业要求</th>
+            <th style="width:40px;text-align:center">对比</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><button class="star on"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.6l1.9 3.9 4.3.6-3.1 3 .7 4.2L8 11.4l-3.8 1.9.7-4.2-3.1-3 4.3-.6z"/></svg></button></td>
+            <td><span class="pill guokao">国考</span></td>
+            <td>
+              <div class="dept">国家税务总局青岛市税务局</div>
+              <div class="pos-sub">一级行政执法员（六）<span style="color:#c3c9d2"> · </span>2026 年度</div>
+            </td>
+            <td>山东 · 青岛</td>
+            <td class="num" style="text-align:right">2</td>
+            <td class="num" style="text-align:right">948</td>
+            <td style="text-align:right"><span class="ratio hot">474 : 1</span></td>
+            <td>
+              <div class="score-wrap">
+                <span class="score">141.9</span>
+                <span class="score-bar hot"><i style="width:71%"></i></span>
+              </div>
+            </td>
+            <td><span class="pill ok">可报</span></td>
+            <td class="major-cell" title="经济学类、财政学类、金融学类、经济与贸易类、工商管理类、公共管理类、法学类">经济学类、财政学类、金融学类、经济与贸易类、工商管理类、公共管理类、法学类</td>
+            <td style="text-align:center"><input type="checkbox" class="cmp"></td>
+          </tr>
+          <tr>
+            <td><button class="star"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.6l1.9 3.9 4.3.6-3.1 3 .7 4.2L8 11.4l-3.8 1.9.7-4.2-3.1-3 4.3-.6z"/></svg></button></td>
+            <td><span class="pill xuandiao">浙江选调</span></td>
+            <td>
+              <div class="dept">浙江省委办公厅</div>
+              <div class="pos-sub">综合文字<span style="color:#c3c9d2"> · </span>2027 年度</div>
+            </td>
+            <td>浙江 · 省直</td>
+            <td class="num" style="text-align:right">1</td>
+            <td class="num" style="text-align:right;color:var(--text-3)">—</td>
+            <td style="text-align:right;color:var(--text-3)">—</td>
+            <td style="color:var(--text-3);font-size:12px">不公布</td>
+            <td><span class="pill ok">可报</span></td>
+            <td class="major-cell" title="哲学(01)、经济学(02)、法学(03)、中国语言文学(0501)、新闻传播学(0503)">哲学(01)、经济学(02)、法学(03)、中国语言文学(0501)、新闻传播学(0503)</td>
+            <td style="text-align:center"><input type="checkbox" class="cmp"></td>
+          </tr>
+          <tr>
+            <td><button class="star"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.6l1.9 3.9 4.3.6-3.1 3 .7 4.2L8 11.4l-3.8 1.9.7-4.2-3.1-3 4.3-.6z"/></svg></button></td>
+            <td><span class="pill zj">浙江省考</span></td>
+            <td>
+              <div class="dept">浙江省社会保险和就业服务中心</div>
+              <div class="pos-sub">社保经办<span style="color:#c3c9d2"> · </span>2026 年度</div>
+            </td>
+            <td>浙江 · 省直</td>
+            <td class="num" style="text-align:right">1</td>
+            <td class="num" style="text-align:right">389</td>
+            <td style="text-align:right"><span class="ratio hot">389 : 1</span></td>
+            <td>
+              <div class="score-wrap">
+                <span class="score">137.35</span>
+                <span class="score-bar"><i style="width:66%"></i></span>
+              </div>
+            </td>
+            <td><span class="pill ok">可报</span></td>
+            <td class="major-cell" title="本科所学专业要求为：行政管理、公共管理、社会保障、劳动与社会保障、经济学、国民经济管理">本科所学专业要求为：行政管理、公共管理、社会保障、劳动与社会保障、经济学、国民经济管理</td>
+            <td style="text-align:center"><input type="checkbox" class="cmp"></td>
+          </tr>
+          <tr>
+            <td><button class="star"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.6l1.9 3.9 4.3.6-3.1 3 .7 4.2L8 11.4l-3.8 1.9.7-4.2-3.1-3 4.3-.6z"/></svg></button></td>
+            <td><span class="pill zj">浙江省考</span></td>
+            <td>
+              <div class="dept">义乌市乡镇机关</div>
+              <div class="pos-sub">工作人员 10（一级科员）<span style="color:#c3c9d2"> · </span>2026 年度</div>
+            </td>
+            <td>浙江 · 金华</td>
+            <td class="num" style="text-align:right">1</td>
+            <td class="num" style="text-align:right">1,613</td>
+            <td style="text-align:right"><span class="ratio hot">1613 : 1</span></td>
+            <td>
+              <div class="score-wrap">
+                <span class="score">139.2</span>
+                <span class="score-bar hot"><i style="width:68%"></i></span>
+              </div>
+            </td>
+            <td><span class="pill ok">可报</span></td>
+            <td class="major-cell" title="不限专业">不限专业</td>
+            <td style="text-align:center"><input type="checkbox" class="cmp"></td>
+          </tr>
+          <tr>
+            <td><button class="star"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.6l1.9 3.9 4.3.6-3.1 3 .7 4.2L8 11.4l-3.8 1.9.7-4.2-3.1-3 4.3-.6z"/></svg></button></td>
+            <td><span class="pill sd">山东省考</span></td>
+            <td>
+              <div class="dept">东营市东营区机关</div>
+              <div class="pos-sub">财务管理职位<span style="color:#c3c9d2"> · </span>2026 年度</div>
+            </td>
+            <td>山东 · 东营</td>
+            <td class="num" style="text-align:right">1</td>
+            <td class="num" style="text-align:right;color:var(--text-3)">—</td>
+            <td style="text-align:right;color:var(--text-3)">—</td>
+            <td>
+              <div class="score-wrap">
+                <span class="score">71.25</span>
+                <span class="score-bar low"><i style="width:71%"></i></span>
+              </div>
+            </td>
+            <td><span class="pill ok">可报</span></td>
+            <td class="major-cell" title="本科：财政学类，会计学、财务管理、财务会计教育、审计学专业；研究生：应用经济学一级学科">本科：财政学类，会计学、财务管理、财务会计教育、审计学专业；研究生：应用经济学一级学科</td>
+            <td style="text-align:center"><input type="checkbox" class="cmp"></td>
+          </tr>
+          <tr>
+            <td><button class="star"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.6l1.9 3.9 4.3.6-3.1 3 .7 4.2L8 11.4l-3.8 1.9.7-4.2-3.1-3 4.3-.6z"/></svg></button></td>
+            <td><span class="pill sh">上海市考</span></td>
+            <td>
+              <div class="dept">上海市纪委监委机关及派驻机构</div>
+              <div class="pos-sub">综合管理类 / 二级主任科员及以下<span style="color:#c3c9d2"> · </span>2026 年度</div>
+            </td>
+            <td>上海</td>
+            <td class="num" style="text-align:right">2</td>
+            <td class="num" style="text-align:right;color:var(--text-3)">—</td>
+            <td style="text-align:right;color:var(--text-3)">—</td>
+            <td style="color:var(--text-3);font-size:12px">合格线制</td>
+            <td><span class="pill ok">可报</span></td>
+            <td class="major-cell" title="专业类别：财经；本科：经济学；研究生：经济学">专业类别：财经；本科：经济学；研究生：经济学</td>
+            <td style="text-align:center"><input type="checkbox" class="cmp"></td>
+          </tr>
+          <tr>
+            <td><button class="star"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.6l1.9 3.9 4.3.6-3.1 3 .7 4.2L8 11.4l-3.8 1.9.7-4.2-3.1-3 4.3-.6z"/></svg></button></td>
+            <td><span class="pill xuandiao">浙江选调</span></td>
+            <td>
+              <div class="dept">杭州市上城区委组织部</div>
+              <div class="pos-sub">综合职位 1<span style="color:#c3c9d2"> · </span>2027 年度</div>
+            </td>
+            <td>浙江 · 杭州</td>
+            <td class="num" style="text-align:right">1</td>
+            <td class="num" style="text-align:right;color:var(--text-3)">—</td>
+            <td style="text-align:right;color:var(--text-3)">—</td>
+            <td style="color:var(--text-3);font-size:12px">不公布</td>
+            <td><span class="pill ok">可报</span></td>
+            <td class="major-cell" title="应用经济学(0202)、金融(0251)、应用统计(0252)、国际商务(0254)、审计(0257)">应用经济学(0202)、金融(0251)、应用统计(0252)、国际商务(0254)、审计(0257)</td>
+            <td style="text-align:center"><input type="checkbox" class="cmp"></td>
+          </tr>
+          <tr>
+            <td><button class="star"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.6l1.9 3.9 4.3.6-3.1 3 .7 4.2L8 11.4l-3.8 1.9.7-4.2-3.1-3 4.3-.6z"/></svg></button></td>
+            <td><span class="pill guokao">国考</span></td>
+            <td>
+              <div class="dept">国家金融监督管理总局山东监管局</div>
+              <div class="pos-sub">监管部门一级主任科员及以下<span style="color:#c3c9d2"> · </span>2026 年度</div>
+            </td>
+            <td>山东 · 临沂</td>
+            <td class="num" style="text-align:right">6</td>
+            <td class="num" style="text-align:right;color:var(--text-3)">—</td>
+            <td style="text-align:right;color:var(--text-3)">—</td>
+            <td>
+              <div class="score-wrap">
+                <span class="score">53.6</span>
+                <span class="score-bar low"><i style="width:54%"></i></span>
+              </div>
+            </td>
+            <td><span class="pill ok">可报</span></td>
+            <td class="major-cell" title="本科专业：经济学类、财政学类、金融学类、经济与贸易类、统计学类；研究生：理论经济学、应用经济学、金融">本科专业：经济学类、财政学类、金融学类、经济与贸易类、统计学类；研究生：理论经济学、应用经济学、金融</td>
+            <td style="text-align:center"><input type="checkbox" class="cmp"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="table-note">
+      <span class="badge">截断</span>
+      结果共 1,255 条，表格仅显示前 400 条。补充筛选条件缩小范围，或直接导出 Excel 获取全部。
+    </div>
+  </section>
+
+  <p class="foot-note">
+    <b>数据说明</b>　数据整理自国家公务员局、各省人事考试网及组织部公告等公开渠道，每条均可点击查看来源。
+    「机关汇总」条目为机关级推断，<b>不是可直接投递的具体职位</b>。<br>
+    <b>口径提示</b>　进面分有 200 分制（浙/国考普通职位）、100 分制折合分（国考特殊专业职位）、100 分制笔试成绩（山东）三套口径，跨省不可直接比较。
+  </p>
+</main>
+
+<div class="preview-flag">设计预览稿 · 未接入真实交互</div>
+
+<script>
+document.querySelectorAll('.chip').forEach(c => {
+  c.addEventListener('click', () => c.classList.toggle('on'));
+});
+document.querySelectorAll('.star').forEach(s => {
+  s.addEventListener('click', () => s.classList.toggle('on'));
+});
+document.querySelectorAll('.nav button').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.nav button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
