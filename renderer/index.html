@@ -59,8 +59,13 @@
         <div class="snap-n" id="snapCount">加载中…</div>
       </div>
       <div class="side-links">
-        <a href="javascript:void(0)" id="themeToggle">深色模式</a>
-        <span class="sep">·</span>
+        <div class="theme-seg" id="themeSeg" role="group" aria-label="界面主题">
+          <button type="button" data-t="light">浅色</button>
+          <button type="button" data-t="dark">深色</button>
+          <button type="button" data-t="auto">跟随主题</button>
+        </div>
+      </div>
+      <div class="side-links meta">
         <span id="appVersion">v1.0</span>
         <span class="sep">·</span>
         <span>本地数据</span>

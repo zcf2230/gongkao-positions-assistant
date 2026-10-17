@@ -1235,25 +1235,24 @@ function bindEvents() {
 
   document.getElementById('btnImport').onclick = () => document.getElementById('importFile').click();
 
-  // 主题三档：浅色 -> 深色 -> 跟随系统（auto 时监听系统切换实时变色）
-  const themeToggle = document.getElementById('themeToggle');
-  if (themeToggle) {
+  // 主题三段选择器：点谁切谁，当前项高亮（auto 时监听系统切换实时变色）
+  const themeSeg = document.getElementById('themeSeg');
+  if (themeSeg) {
     const sysDark = () => window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
     const applyTheme = t => {
       const eff = t === 'auto' ? (sysDark() ? 'dark' : 'light') : t;
       document.documentElement.dataset.theme = eff;
       try { localStorage.setItem('gk_theme', t); } catch (e) { /* 忽略 */ }
-      themeToggle.textContent = t === 'auto' ? '主题：跟随系统' : (eff === 'dark' ? '浅色模式' : '深色模式');
+      themeSeg.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
     };
     applyTheme((() => { try { return localStorage.getItem('gk_theme') || 'light'; } catch (e) { return 'light'; } })());
-    themeToggle.onclick = () => {
-      let cur;
-      try { cur = localStorage.getItem('gk_theme') || 'light'; } catch (e) { cur = 'light'; }
-      applyTheme(cur === 'light' ? 'dark' : cur === 'dark' ? 'auto' : 'light');
-    };
+    themeSeg.addEventListener('click', e => {
+      const b = e.target.closest('button[data-t]');
+      if (b) applyTheme(b.dataset.t);
+    });
     if (window.matchMedia) {
       try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-        if ((localStorage.getItem('gk_theme') || 'light') === 'auto') applyTheme('auto');
+        try { if ((localStorage.getItem('gk_theme') || 'light') === 'auto') applyTheme('auto'); } catch (e) {}
       }); } catch (e) { /* 老内核无 addEventListener */ }
     }
   }
