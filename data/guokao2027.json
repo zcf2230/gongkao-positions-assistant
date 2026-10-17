@@ -1,0 +1,23 @@
+{
+  "exam": "国考",
+  "year": 2027,
+  "overallStats": {
+    "totalPositions": null,
+    "totalQuota": 35700,
+    "totalApplicants": null,
+    "avgRatio": null,
+    "source": "https://www.gemu.cn （2027年度招考简章2026-10-13发布，笔试2026-11-29，计划招录3.57万人）；湖北等地职位表已发布（湖北791岗1566人）"
+  },
+  "timeline": [
+    { "stage": "招考简章发布", "date": "2026-10-13", "source": "https://www.gemu.cn" },
+    { "stage": "公共科目笔试考试大纲发布", "date": "2026-10-14", "source": "https://www.gemu.cn" },
+    { "stage": "专业科目考试大纲发布（税务机关、证监会、金监局、公安等）", "date": "2026-10-14", "source": "https://www.gemu.cn" },
+    { "stage": "网上报名（按往年惯例10月15日-24日，以官方公告为准）", "date": "2026-10-15 至 2026-10-24（惯例预测）", "source": "https://www.gemu.cn" },
+    { "stage": "笔试（公共科目）", "date": "2026-11-29", "source": "https://www.gemu.cn" },
+    { "stage": "专业科目笔试（金监/证监会/公安等，预计笔试前一日下午）", "date": "2026-11-28（预计）", "source": "https://www.gemu.cn" },
+    { "stage": "笔试成绩查询", "date": "2027年1月（预计）", "source": "https://www.gemu.cn" },
+    { "stage": "面试", "date": "2027年2月（预计）", "source": "https://www.gemu.cn" }
+  ],
+  "examStructure": "与2026年度相同：公共科目行测+申论（副省级/地市级/行政执法类三套卷）；报考金融监管总局、证监会、公安机关人民警察等职位的加考专业科目（大纲已于2026-10-14发布）。报名期每日更新过审人数。",
+  "positions": []
+}

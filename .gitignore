@@ -1,0 +1,24 @@
+# 依赖（重装用 npm install）
+node_modules/
+
+# 构建/打包产物
+dist/
+out/
+release/
+
+# 备份与临时文件
+*.bak
+*.tmp
+_test_launch.bat
+*.orig
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# 日志
+*.log
+npm-debug.log*

@@ -1,0 +1,115 @@
+{
+  "exam": "国考",
+  "year": 2026,
+  "overallStats": {
+    "totalPositions": 20714,
+    "totalQuota": 38119,
+    "totalApplicants": 3718000,
+    "avgRatio": 98,
+    "source": "https://www.news.cn/politics/20251130/7da14327e1c24cafbf0af0a287a2f085/c.html （371.8万人过审、招录3.81万人，比例约98:1）；税务系统11789个职位招25004人，约占65.6%，山东税务招录最多1500人（http://www.js.xinhuanet.com）；分地区：上海489职位/743人/报名80677人/竞争比108.6:1，山东1234职位/2272人/报名199310人/竞争比87.7:1（https://www.gwyzwb.com）"
+  },
+  "timeline": [
+    {
+      "stage": "招考公告发布",
+      "date": "2025-10-14",
+      "source": "https://gx.huatu.com"
+    },
+    {
+      "stage": "网上报名（每人限报1个职位）",
+      "date": "2025-10-15 8:00 至 2025-10-24 18:00",
+      "source": "https://bm.scs.gov.cn/kl2026"
+    },
+    {
+      "stage": "资格审查结果查询",
+      "date": "2025-10-15 至 2025-10-26",
+      "source": "https://gx.huatu.com"
+    },
+    {
+      "stage": "报名统计（过审371.8万人，竞争比约98:1）",
+      "date": "2025-10-26",
+      "source": "https://m.caixin.com/m/2025-10-27/102376073.html"
+    },
+    {
+      "stage": "缴费确认",
+      "date": "2025-11-01 至 2025-11-06",
+      "source": "https://gx.huatu.com"
+    },
+    {
+      "stage": "准考证打印",
+      "date": "2025-11-24 至 2025-11-30",
+      "source": "https://gx.huatu.com"
+    },
+    {
+      "stage": "专业科目笔试（金融监管总局、证监会等，金融专业重点）",
+      "date": "2025-11-29 14:00 至 16:00",
+      "source": "https://www.lysrsks.com"
+    },
+    {
+      "stage": "公共科目笔试（行测+申论）",
+      "date": "2025-11-30",
+      "source": "https://www.news.cn/politics/20251130/7da14327e1c24cafbf0af0a287a2f085/c.html"
+    },
+    {
+      "stage": "笔试合格分数线公布",
+      "date": "2026-01-15",
+      "source": "https://ah.huatu.com/zw/fenshu"
+    },
+    {
+      "stage": "面试（首批进面约11.3万人）",
+      "date": "2026-02",
+      "source": "https://www.gemu.cn"
+    },
+    {
+      "stage": "2027国考公告发布（预计，以官方为准）",
+      "date": "2026-10-14（预计）",
+      "source": "https://gx.huatu.com"
+    },
+    {
+      "stage": "2027国考网上报名（预计）",
+      "date": "2026-10-15 至 2026-10-24（预计）",
+      "source": "https://gx.huatu.com"
+    },
+    {
+      "stage": "2027国考笔试（预计）",
+      "date": "2026-11月底（预计）",
+      "source": "https://www.gemu.cn"
+    }
+  ],
+  "examStructure": "公共科目：行政职业能力测验 + 申论，按副省级、地市级、行政执法类三套卷命题。报考金融监管总局及其派出机构、证监会等职位的需加考专业科目笔试（2025-11-29下午），内容为经济金融保险基础知识+职位类别专业知识+英语，全部客观题；金监局笔试成绩=行测+申论+专业科目。中国人民银行2026招录3651人（同比+19%），央行、金监局、证监会系统共招6422人。",
+  "entryScoreSummary": "2026国考税务系统进面分参考：山东省税务局最低106.1/最高142.2；浙江省税务局最低95.9/最高146.2。中央机关及省级直属机构综合管理类合格线为总分105分、行测60分（地市级约95分）。青岛税务局历年最低113.9/最高144.7。",
+  "positions": [
+    {
+      "code": "300110310004",
+      "dept": "国家税务总局浙江省税务局",
+      "position": "一级行政执法员（四）",
+      "location": "浙江省嘉兴市海宁市",
+      "quota": 1,
+      "applicants": 121,
+      "entryScore": 129.3,
+      "education": "本科及以上",
+      "major": "数学类、统计学类、计算机类",
+      "financeOk": true,
+      "political": "不限",
+      "baseYears": "无限制",
+      "notes": "报名人数为报名期统计（华图职位库口径）；学位须与最高学历相对应｜已与官方招考简章核对（职位代码 300110310004）｜已与官方招考简章核对（职位代码 300110310004）",
+      "source": "http://dl.scs.gov.cn/download/8a81f6d19780e4080199e13f881f0153"
+    },
+    {
+      "code": "300110011003",
+      "dept": "国家税务总局青岛市税务局",
+      "position": "一级行政执法员（三）",
+      "location": "山东省青岛市胶州市",
+      "quota": 1,
+      "applicants": 118,
+      "entryScore": 106.8,
+      "education": "本科及以上",
+      "major": "管理科学与工程类、物流管理与工程类、电子商务类",
+      "financeOk": false,
+      "political": "不限",
+      "baseYears": "无限制",
+      "notes": "报名人数为报名期统计；山东税务2026进面分区间106.1-142.2｜已与官方招考简章核对（职位代码 300110011003）｜已与官方招考简章核对（职位代码 300110011003）",
+      "source": "http://dl.scs.gov.cn/download/8a81f6d19780e4080199e13f881f0153"
+    }
+  ],
+  "positionsNote": "2026-09-22 删除 8 条第三方（华图/中公等）旧条目：这些是无进面分的合成「代表岗」，已被 2404 条官方职位表取代；官方专题站来源的条目全部保留。"
+}

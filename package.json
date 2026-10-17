@@ -1,0 +1,17 @@
+{
+  "name": "gongkao-helper",
+  "version": "1.0.0",
+  "description": "考公岗位信息助手 - 浙江省考/山东省考/上海市考/国考岗位查询与竞争度分析",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.0.0"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}

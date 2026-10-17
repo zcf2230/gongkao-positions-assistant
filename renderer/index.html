@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>考公岗位信息助手</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">公</span>
+      <div>
+        <h1>考公岗位信息助手</h1>
+        <div class="subtitle">国考 · 浙江选调 · 浙江省考 · 山东省考 · 上海市考 ｜ 金融专业视角</div>
+      </div>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-tab="search">岗位查询</button>
+      <button class="tab" data-tab="analysis">竞争度分析</button>
+      <button class="tab" data-tab="compare">对比与收藏</button>
+      <button class="tab" data-tab="prep">备考辅助</button>
+      <button class="tab" data-tab="data">数据管理</button>
+    </nav>
+  </header>
+  <div id="reminderBanner" class="reminder-banner hidden"></div>
+
+  <main>
+    <!-- ============ 岗位查询 ============ -->
+    <section id="tab-search" class="tab-page active">
+      <div class="card filter-card">
+        <div class="filter-row">
+          <div class="filter-item">
+            <span class="filter-label" id="examChecksLabel">考试类型</span>
+            <div class="checkboxes" id="examChecks" role="group" aria-labelledby="examChecksLabel">
+              <label><input type="checkbox" value="国考" checked>国考</label>
+              <label><input type="checkbox" value="浙江选调" checked>浙江选调</label>
+              <label><input type="checkbox" value="浙江省考" checked>浙江省考</label>
+              <label><input type="checkbox" value="山东省考" checked>山东省考</label>
+              <label><input type="checkbox" value="上海市考" checked>上海市考</label>
+              <label><input type="checkbox" value="自定义导入">导入</label>
+            </div>
+          </div>
+          <div class="filter-item">
+            <label for="fRegion">地区</label>
+            <select id="fRegion">
+              <option value="">全部地区</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label for="fMajor">专业关键词</label>
+            <input id="fMajor" type="text" placeholder="如：金融 / 经济 / 不限" value="金融">
+          </div>
+          <div class="filter-item">
+            <label for="fEdu">学历要求</label>
+            <select id="fEdu">
+              <option value="">不限</option>
+              <option value="bachelor" selected>本科可报</option>
+              <option value="master">要求硕士</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label for="fPolitical">政治面貌</label>
+            <select id="fPolitical">
+              <option value="">不限</option>
+              <option value="none">不限（本人群众）</option>
+              <option value="ccp">中共党员</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label for="fBase">基层年限</label>
+            <select id="fBase">
+              <option value="">不限</option>
+              <option value="none">无基层年限要求</option>
+              <option value="has">有年限要求</option>
+            </select>
+          </div>
+          <div class="filter-item grow">
+            <label for="fKeyword">关键词</label>
+            <input id="fKeyword" type="text" placeholder="部门 / 职位 / 地点，如：税务局 杭州">
+          </div>
+          <div class="filter-item">
+            <label for="fSort">排序</label>
+            <select id="fSort">
+              <option value="default">默认（按考试）</option>
+              <option value="ratioAsc">竞争比 低→高</option>
+              <option value="ratioDesc">竞争比 高→低</option>
+              <option value="scoreAsc">进面分 低→高</option>
+              <option value="scoreDesc">进面分 高→低</option>
+              <option value="quotaDesc">招录人数 多→少</option>
+              <option value="quotaAsc">招录人数 少→多</option>
+              <option value="applicantsDesc">报名人数 多→少</option>
+              <option value="applicantsAsc">报名人数 少→多</option>
+            </select>
+          </div>
+        </div>
+        <div class="filter-row actions">
+          <button id="btnMatch" class="btn primary">🔍 查询</button>
+          <button id="btnReset" class="btn">重置条件</button>
+          <button id="btnExport" class="btn">⬇ 导出 Excel</button>
+          <label class="toggle"><input type="checkbox" id="fFavOnly">只看收藏</label>
+          <span id="matchCount" class="match-count"></span>
+        </div>
+      </div>
+
+      <div class="card table-card">
+        <div class="table-scroll">
+          <table class="pos-table" id="resultTable">
+            <thead>
+              <tr>
+                <th>★</th>
+                <th>考试</th>
+                <th>招录机关</th>
+                <th>职位</th>
+                <th>地区</th>
+                <th data-sort="quota" data-label="招录" title="点击按招录人数排序">招录</th>
+                <th data-sort="applicants" data-label="报名" title="点击按报名人数排序">报名</th>
+                <th data-sort="ratio" data-label="竞争比" title="点击按竞争比排序（无数据沉底）">竞争比</th>
+                <th data-sort="entryScore" data-label="进面分" title="点击按进面分排序（无数据沉底）。⚠️ 国考「特殊专业职位」（金融监管/证监会/边检等需加考专业科目的）进面分是折合分，满分 100，与普通职位的 200 分制不可直接比较，列表里已标「折合」">进面分</th>
+                <th title="该岗位金融本科能否报考">金融可报</th>
+                <th>专业要求</th>
+                <th>对比</th>
+              </tr>
+            </thead>
+            <tbody id="resultBody"></tbody>
+          </table>
+        </div>
+        <div id="tableNote" class="table-note hidden"></div>
+        <div id="emptyTip" class="empty-tip hidden">没有符合条件的岗位，试试放宽筛选条件（如清空专业关键词、学历选"不限"）。</div>
+      </div>
+      <div class="footnote">数据说明：内置数据整理自官方网站及公开报道，<b>报名人数为报名期截止/最新公开口径</b>，仅供参考；点击行可查看详情与数据来源。<b>「机关汇总」</b>条目为机关级推断（该机关共招 N 岗 M 人），不是可直接投递的具体职位，请以官方职位表为准。</div>
+    </section>
+
+    <!-- ============ 竞争度分析 ============ -->
+    <section id="tab-analysis" class="tab-page">
+      <div class="cards-row" id="examStatCards"></div>
+      <div class="card">
+        <h3>📊 热门岗位竞争比 TOP 15（有报名人数数据的岗位）</h3>
+        <div id="ratioChart" class="chart"></div>
+      </div>
+      <div class="card">
+        <h3>📊 相对好考岗位（有数据岗位中竞争比最低的 10 个）</h3>
+        <div id="easyChart" class="chart"></div>
+      </div>
+      <div class="card">
+        <h3>💡 金融专业考情速览</h3>
+        <div id="insights" class="insights"></div>
+      </div>
+    </section>
+
+    <!-- ============ 对比与收藏 ============ -->
+    <section id="tab-compare" class="tab-page">
+      <div class="card">
+        <h3>⭐ 我的收藏</h3>
+        <div id="favList"></div>
+      </div>
+      <div class="card">
+        <h3>⚖️ 岗位对比（最多 4 个，在查询结果勾选"对比"后点击下方按钮）</h3>
+        <button id="btnCompare" class="btn primary">生成对比表</button>
+        <button id="btnClearCompare" class="btn">清空</button>
+        <div id="compareWrap"></div>
+      </div>
+      <div class="card">
+        <h3>📝 我的岗位评价</h3>
+        <p class="muted">你在岗位详情页写的评价会汇总在这里（仅保存在本机）。</p>
+        <div id="reviewList"></div>
+      </div>
+    </section>
+
+    <!-- ============ 备考辅助 ============ -->
+    <section id="tab-prep" class="tab-page">
+      <div class="card">
+        <h3>⏰ 重要时间节点</h3>
+        <div id="timeline"></div>
+      </div>
+      <div class="cards-row" id="examStructureCards"></div>
+      <div class="card">
+        <h3>✅ 备考任务清单（自动保存）</h3>
+        <div class="new-task"><input id="newTask" type="text" placeholder="添加自定义任务，回车确认" aria-label="添加自定义备考任务"><button id="btnAddTask" class="btn">添加</button></div>
+        <ul id="taskList" class="task-list"></ul>
+      </div>
+      <div class="card">
+        <h3>📚 备考建议（金融专业大三）</h3>
+        <div id="advice" class="advice"></div>
+      </div>
+    </section>
+
+    <!-- ============ 数据管理 ============ -->
+    <section id="tab-data" class="tab-page">
+      <div class="card">
+        <h3>📦 内置数据概况</h3>
+        <div id="dataSummary"></div>
+        <p class="muted">内置数据整理自官方公告与公开报道，包含年份口径标注。报名人数实时数据仅在官方报名系统内公布。</p>
+      </div>
+      <div class="card">
+        <h3>📥 导入最新岗位表（Excel / CSV）</h3>
+        <p class="muted">支持导入从官方下载的职位表。系统会自动识别常见列名（招录机关、职位名称、招录人数、专业、学历、报名人数等），导入前可预览。导入的数据与内置数据合并展示，可随时清除。</p>
+        <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none">
+        <div class="filter-row actions">
+          <button id="btnImport" class="btn primary">选择文件导入</button>
+          <button id="btnClearImport" class="btn danger">清除导入数据</button>
+        </div>
+        <div id="importPreview"></div>
+      </div>
+      <div class="card">
+        <h3>ℹ️ 数据口径说明</h3>
+        <ul class="note-list">
+          <li><b>报名人数</b>：官方仅在报名期内公布（国考每天更新过审人数，省考口径不一），本工具内置的是截止/最新公开口径。</li>
+          <li><b>录取人数</b>：即"招录人数"（计划招录）；实际录用人数以官方公示为准，通常与计划数接近。</li>
+          <li><b>进面分数线</b>：为该岗位进入面试的最低笔试折合分，不同考试折算方式不同，跨考试不可直接比较。</li>
+          <li><b>岗位评价</b>：内置简评为综合网络公开信息整理，主观仅供参考；"我的评价"仅保存在本机。</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- 岗位详情弹窗 -->
+  <div id="modalMask" class="modal-mask hidden">
+    <div class="modal" id="modalBox"></div>
+  </div>
+
+  <script src="lib/xlsx.full.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

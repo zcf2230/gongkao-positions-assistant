@@ -1,0 +1,132 @@
+{
+  "exam": "上海市考",
+  "year": 2026,
+  "specialRule": "先笔试、后报岗：先参加统一笔试，笔试合格者才有资格参加第一轮网上职位报名并接受资格审查，未录满职位还有第二轮职位招录。2026年度起公务员和参公职位不再区分A类/B类。",
+  "overallStats": {
+    "totalQuota": 2393,
+    "totalApplicants": null,
+    "avgRatio": null,
+    "source": "http://sh.xinhuanet.com （2026年度招录2393人，同比增长约13%）；官方不统一公布报名总数。参考：2026国考上海地区报名80677人、竞争比108.6:1（https://www.gwyzwb.com）"
+  },
+  "timeline": [
+    {
+      "stage": "招考公告发布",
+      "date": "2025-10-31",
+      "source": "https://fenbi.com"
+    },
+    {
+      "stage": "网上报名",
+      "date": "2025-11-01 0:00 至 2025-11-07 12:00",
+      "source": "https://bm.shacs.gov.cn/zlxt"
+    },
+    {
+      "stage": "网上缴费",
+      "date": "2025-11-10 至 2025-11-12 18:00",
+      "source": "https://bm.shacs.gov.cn"
+    },
+    {
+      "stage": "准考证打印",
+      "date": "2025-12-03 10:00 起",
+      "source": "https://bm.shacs.gov.cn"
+    },
+    {
+      "stage": "笔试（与浙江、山东省考同期周末）",
+      "date": "2025-12-07",
+      "source": "https://fenbi.com"
+    },
+    {
+      "stage": "笔试合格分数线公布（财经类143.8分）",
+      "date": "2026-01-09",
+      "source": "https://bm.shacs.gov.cn"
+    },
+    {
+      "stage": "第一轮网上职位报名（笔试合格者）",
+      "date": "2026-01-12 9:00 至 2026-01-16 18:00",
+      "source": "https://ah.huatu.com"
+    },
+    {
+      "stage": "第二轮职位报名",
+      "date": "2026-01-20 至 2026-01-22（另有口径为2026年4月，以官方为准）",
+      "source": "https://ah.huatu.com"
+    },
+    {
+      "stage": "面试",
+      "date": "2026-02-06 至 2026-02-10（行政执法类2026-03-07至03-09）",
+      "source": "https://fenbi.com"
+    },
+    {
+      "stage": "2027上海市考（预计）",
+      "date": "预计2026年11月初报名、12月笔试（以官方公告为准）",
+      "source": "https://m.gwy.com"
+    }
+  ],
+  "examStructure": "公共科目：《行政职业能力测验》+《申论》（150分钟，满分100分）。报考政法、数字信息、财经、城市建设、卫生健康、公安司法机关基层人民警察等专业类别的须加考专业科目（满分50分，客观题）；综合管理类、行政执法类不设专业科目。财经类岗位（财政、税务、金融监管、审计等）为金融专业主战场。",
+  "hukouPolicy": "公务员录用与落户是两条线：录用后由单位申报落户（按人才引进/随调等现行规则审核），没有'考上即落户'的自动转换；非沪籍应届毕业生可由用人单位申报应届落户，符合条件的应届硕士/博士可直接落户。部分区人才储备计划提供落户协助+住房保障。",
+  "entryScoreSummary": "2026年度笔试合格线（1月9日公布）：综合类两门总分121.9；政法类三门总分145.4；财经类三门总分143.8；城市建设类三门总分150.9。热门财经岗进面分普遍150分以上。",
+  "positions": [
+    {
+      "code": "26020551",
+      "dept": "上海市静安区财政局（预算科）",
+      "position": "四级主任科员及以下（综合管理/财经类）",
+      "location": "上海·静安",
+      "quota": null,
+      "applicants": null,
+      "entryScore": null,
+      "education": "本科及以上",
+      "major": "经济学类、财政学类、金融学类、会计学、财务管理",
+      "financeOk": true,
+      "political": "不限",
+      "baseYears": "不限",
+      "notes": "典型区级财经岗；上海市考报名人数官方不公布，财经类合格线143.8分",
+      "source": "https://ah.huatu.com"
+    },
+    {
+      "code": null,
+      "dept": "上海市/区级财政、审计、国资委、发改委系统（代表岗）",
+      "position": "财经类岗位（四级主任科员及以下等）",
+      "location": "上海（各区）",
+      "quota": null,
+      "applicants": null,
+      "entryScore": null,
+      "education": "本科及以上",
+      "major": "经济学类、财政学类、金融学类、财会审计类等",
+      "financeOk": true,
+      "political": "不限",
+      "baseYears": "不限",
+      "notes": "财经类岗位代表形态，需加考财经类专业科目（满分50分）；具体职位以官方职位表为准",
+      "source": "https://bm.shacs.gov.cn"
+    },
+    {
+      "code": null,
+      "dept": "上海市市场监管/税务协审等行政执法类系统（代表岗）",
+      "position": "行政执法类岗位",
+      "location": "上海（各区）",
+      "quota": null,
+      "applicants": null,
+      "entryScore": null,
+      "education": "本科及以上",
+      "major": "专业要求较宽，部分不限",
+      "financeOk": true,
+      "political": "不限",
+      "baseYears": "不限",
+      "notes": "行政执法类不设专业科目，面试时间为2026-03-07至03-09",
+      "source": "https://fenbi.com"
+    },
+    {
+      "code": null,
+      "dept": "上海市长宁区发展和改革委员会",
+      "position": "财经类岗位（一级科员及以下）",
+      "location": "上海·长宁",
+      "quota": null,
+      "applicants": null,
+      "entryScore": null,
+      "education": "本科及以上",
+      "major": "经济学类、财政学类、金融学类等（财经类）",
+      "financeOk": true,
+      "political": "不限",
+      "baseYears": "不限",
+      "notes": "2026上海市考财经类进面分TOP1岗位；财经类TOP10中长宁独占4席，高分集中在发改委、审计局、财政局（知乎进面分数排行分析）；具体分数以华智/华图分岗位明细为准",
+      "source": "https://www.huazhi.cn"
+    }
+  ]
+}

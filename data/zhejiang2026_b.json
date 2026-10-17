@@ -1,0 +1,77 @@
+{
+  "exam": "浙江省考",
+  "year": 2026,
+  "overallStats": null,
+  "timeline": [],
+  "examStructure": null,
+  "cityStats": [
+    {
+      "city": "杭州",
+      "positions": 589,
+      "quota": 818,
+      "source": "https://zj.gwyzwb.com/hangzhou/"
+    },
+    {
+      "city": "宁波",
+      "positions": 514,
+      "quota": 679,
+      "source": "https://zj.gwyzwb.com/ningbo/"
+    },
+    {
+      "city": "温州",
+      "positions": 494,
+      "quota": 659,
+      "source": "https://zj.gwyzwb.com/wenzhou/"
+    },
+    {
+      "city": "嘉兴",
+      "positions": 398,
+      "quota": 501,
+      "source": "https://zj.gwyzwb.com/jiaxing/"
+    },
+    {
+      "city": "湖州",
+      "positions": 190,
+      "quota": 242,
+      "source": "https://zj.gwyzwb.com/huzhou/"
+    },
+    {
+      "city": "绍兴",
+      "positions": 344,
+      "quota": 417,
+      "source": "https://zj.gwyzwb.com/shaoxing/"
+    },
+    {
+      "city": "金华",
+      "positions": 388,
+      "quota": 564,
+      "source": "https://zj.gwyzwb.com/jinhua/"
+    },
+    {
+      "city": "衢州",
+      "positions": 199,
+      "quota": 260,
+      "source": "https://zj.gwyzwb.com/quzhou/"
+    },
+    {
+      "city": "舟山",
+      "positions": 96,
+      "quota": 104,
+      "source": "https://zj.gwyzwb.com/zhoushan/"
+    },
+    {
+      "city": "台州",
+      "positions": 417,
+      "quota": 560,
+      "source": "https://zj.gwyzwb.com/taizhou/"
+    },
+    {
+      "city": "丽水",
+      "positions": 263,
+      "quota": 309,
+      "source": "https://zj.gwyzwb.com/lishui/"
+    }
+  ],
+  "positions": [],
+  "positionsNote": "原 44 条「财经类综合岗位（机关汇总）」占位条目已于 2026-09-21 移除——浙江省考已收录官方职位表全量 4004 个真实职位，机关级推断不再必要。本文件保留 cityStats（各地市招录概况）供数据管理页使用。"
+}
