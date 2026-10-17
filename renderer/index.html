@@ -5,7 +5,11 @@
   <title>考公岗位信息助手</title>
   <script>
     // 主题在 CSS 之前设置，避免深色用户启动时闪白
-    try { document.documentElement.dataset.theme = localStorage.getItem('gk_theme') === 'dark' ? 'dark' : 'light'; } catch (e) {}
+    try {
+      var t = localStorage.getItem('gk_theme') || 'light';
+      var sys = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.dataset.theme = (t === 'auto') ? sys : t;
+    } catch (e) {}
   </script>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -283,6 +287,53 @@
         </div>
       </div>
       <div class="card">
+        <h3>我的报考档案</h3>
+        <p class="card-sub">数据只存在本机、随时可改（明年条件变了直接更新这里再点分析）。分析只做「硬性资格」判定：学历门槛、政治面貌、基层年限、应届年度、浙江选调的基本资格——专业匹配度仍以官方职位表目录为准。</p>
+        <div class="profile-grid">
+          <label>学历层次
+            <select id="pfDegree">
+              <option value="bachelor">本科在读</option>
+              <option value="master">硕士在读</option>
+            </select>
+          </label>
+          <label>毕业年份（应届届别）
+            <select id="pfGradYear">
+              <option value="2027">2027 届</option>
+              <option value="2028" selected>2028 届</option>
+              <option value="2029">2029 届</option>
+            </select>
+          </label>
+          <label>政治面貌
+            <select id="pfPolitical">
+              <option value="none">群众</option>
+              <option value="tuan">共青团员</option>
+              <option value="ccp">中共党员（含预备）</option>
+            </select>
+          </label>
+          <label>基层工作经历
+            <select id="pfBase">
+              <option value="none">无</option>
+              <option value="has">有</option>
+            </select>
+          </label>
+          <label class="pf-wide">专业（用于岗位查询预填）
+            <input id="pfMajor" type="text" value="金融学" placeholder="如：金融学 / 金融">
+          </label>
+        </div>
+        <div class="profile-conds">
+          <b>浙江选调「四项条件之一」（常规选调报考资格，可多选）：</b>
+          <label class="toggle"><input type="checkbox" id="pfCond2">担任班级委员 / 团支部委员 / 院系级学生会（研究生会、团委）中层副职及以上满 1 学年</label>
+          <label class="toggle"><input type="checkbox" id="pfCond3">获「三好学生」「优秀毕业生」「优秀团员」等校级以上综合表彰</label>
+          <label class="toggle"><input type="checkbox" id="pfCond4">获国家级奖学金或校级一等以上奖学金</label>
+        </div>
+        <div class="filter-row actions">
+          <button id="btnProfileSave" class="btn primary">保存档案</button>
+          <button id="btnProfileCheck" class="btn">分析「我能报哪些」</button>
+          <button id="btnProfileApply" class="btn">把我的条件应用到岗位查询</button>
+        </div>
+        <div id="profileResult"></div>
+      </div>
+      <div class="card">
         <h3>重要时间节点</h3>
         <div id="timeline"></div>
       </div>
@@ -320,6 +371,22 @@
           <button id="btnCheckUpdate" class="btn primary">检查官方数据更新</button>
           <span class="muted" style="margin:0">数据源：国家公务员局专题站（dl.scs.gov.cn）</span>
         </div>
+      </div>
+      <div class="card">
+        <h3>我的数据备份</h3>
+        <p class="card-sub">收藏、评价、任务、报考档案、筛选偏好都保存在本机（localStorage）——导出一份 JSON 可防丢失，换电脑也能恢复。</p>
+        <div class="filter-row actions">
+          <button id="btnBackupExport" class="btn primary">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2.2v7.4m0 0l2.8-2.8M8 9.6L5.2 6.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.6 11.4v1.2c0 .9.7 1.6 1.6 1.6h7.6c.9 0 1.6-.7 1.6-1.6v-1.2" stroke-linecap="round"/></svg>
+            导出备份
+          </button>
+          <button id="btnBackupImport" class="btn">导入恢复</button>
+          <input type="file" id="backupFile" accept=".json" style="display:none">
+        </div>
+      </div>
+      <div class="card">
+        <h3>使用偏好</h3>
+        <label class="toggle" style="margin:4px 0 2px"><input type="checkbox" id="keepFiltersToggle">记住上次筛选条件（关闭时每次启动恢复默认：金融 + 本科可报 + 全选考试）</label>
       </div>
       <div class="card">
         <h3>导入最新岗位表</h3>

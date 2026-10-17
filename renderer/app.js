@@ -927,6 +927,192 @@ function confirmImport() {
   bootstrap(false);
 }
 
+
+
+/* ===================== P1 我的数据备份 ===================== */
+const PROFILE_KEY = 'gk_profile';
+function exportMyData() {
+  const data = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    favorites: loadLS(LS.fav, []),
+    reviews: loadLS(LS.review, {}),
+    tasks: loadLS(LS.task, null),
+    compare: loadLS(LS.compare, []),
+    profile: loadLS(PROFILE_KEY, null),
+    keepFilters: loadLS('gk_keep_filters', false),
+    lastFilters: loadLS('gk_last_filters', null)
+  };
+  const blob = new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'gongkao-backup-' + localDateStr() + '.json';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+}
+
+function importMyData(file) {
+  file.text().then(txt => {
+    const d = JSON.parse(txt);
+    if (!d.version || !('favorites' in d)) throw new Error('不是本工具导出的备份文件');
+    if (!confirm('导入将覆盖当前的收藏 / 评价 / 任务 / 报考档案，确定继续？')) return;
+    localStorage.setItem(LS.fav, JSON.stringify(d.favorites || []));
+    localStorage.setItem(LS.review, JSON.stringify(d.reviews || {}));
+    if (d.tasks) localStorage.setItem(LS.task, JSON.stringify(d.tasks));
+    if (d.compare) localStorage.setItem(LS.compare, JSON.stringify(d.compare));
+    if (d.profile) localStorage.setItem(PROFILE_KEY, JSON.stringify(d.profile));
+    if ('keepFilters' in d) localStorage.setItem('gk_keep_filters', JSON.stringify(!!d.keepFilters));
+    if (d.lastFilters) localStorage.setItem('gk_last_filters', JSON.stringify(d.lastFilters));
+    alert('导入成功，即将刷新');
+    location.reload();
+  }).catch(e => alert('导入失败：' + e.message));
+}
+
+/* ===================== P4 记住上次筛选 ===================== */
+function saveLastFilters() {
+  try {
+    if (loadLS('gk_keep_filters', false)) localStorage.setItem('gk_last_filters', JSON.stringify(currentFilters()));
+  } catch (e) { /* 忽略 */ }
+}
+function applySavedFilters(saved) {
+  if (!saved) return false;
+  try {
+    document.querySelectorAll('#examChecks input').forEach(c => { c.checked = (saved.exams || []).includes(c.value); });
+    document.getElementById('fRegion').value = saved.region || '';
+    document.getElementById('fMajor').value = saved.major != null ? saved.major : FILTER_DEFAULTS.major;
+    document.getElementById('fEdu').value = saved.edu != null ? saved.edu : FILTER_DEFAULTS.edu;
+    document.getElementById('fPolitical').value = saved.political != null ? saved.political : '';
+    document.getElementById('fBase').value = saved.base != null ? saved.base : '';
+    document.getElementById('fKeyword').value = saved.keyword || '';
+    document.getElementById('fSort').value = saved.sort || 'default';
+    document.getElementById('fFavOnly').checked = !!saved.favOnly;
+    syncSortHeaders();
+    return true;
+  } catch (e) { return false; }
+}
+
+/* ===================== P3 我的报考档案 + 资格自检 ===================== */
+function saveProfileFromForm() {
+  const profile = {
+    degree: document.getElementById('pfDegree').value,
+    gradYear: Number(document.getElementById('pfGradYear').value),
+    political: document.getElementById('pfPolitical').value,
+    baseExp: document.getElementById('pfBase').value,
+    major: document.getElementById('pfMajor').value.trim() || '金融学',
+    cond2: document.getElementById('pfCond2').checked,
+    cond3: document.getElementById('pfCond3').checked,
+    cond4: document.getElementById('pfCond4').checked,
+    savedAt: new Date().toISOString()
+  };
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+  return profile;
+}
+function loadProfileToForm() {
+  const p = loadLS(PROFILE_KEY, null);
+  if (!p) return;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  const chk = (id, v) => { const el = document.getElementById(id); if (el) el.checked = !!v; };
+  set('pfDegree', p.degree || 'bachelor');
+  set('pfGradYear', String(p.gradYear || 2028));
+  set('pfPolitical', p.political || 'none');
+  set('pfBase', p.baseExp || 'none');
+  set('pfMajor', p.major || '金融学');
+  chk('pfCond2', p.cond2); chk('pfCond3', p.cond3); chk('pfCond4', p.cond4);
+}
+
+/* 硬资格判定（自检器专用，独立于筛选器：多出「应届年度」「选调四项条件」两个维度） */
+function canApplyEdu(edu, degree) {
+  const s = String(edu || '');
+  if (/仅限本科/.test(s)) return degree === 'bachelor';
+  if (degree === 'bachelor') return /本科|大专|专科|不限/.test(s);
+  return /本科|硕士|研究生|不限/.test(s);   // 硕士可报本科及以上
+}
+function canApplyPolitical(required, mine) {
+  const r = String(required || '不限');
+  if (mine === 'ccp') return true;
+  if (mine === 'tuan') return /不限|共青团员|群众|无/.test(r) || r === '';
+  return /不限|群众|无/.test(r) || r === '';
+}
+function canApplyBase(baseYears, mine) {
+  if (mine === 'has') return true;
+  return !baseYears || /不限|无|^$/.test(String(baseYears));
+}
+
+function runProfileCheck() {
+  const p = loadLS(PROFILE_KEY, null);
+  if (!p) { alert('请先保存报考档案'); return null; }
+  const gradYear = Number(p.gradYear) || 2028;
+  const selBasic = p.political === 'ccp' || p.cond2 || p.cond3 || p.cond4;   // 选调基本资格：党员或四项之一
+  const selProvince = p.political === 'ccp' && (p.cond2 || p.cond3 || p.cond4); // 省市机关：党员 + ②③④之一
+
+  const rows = [];
+  for (const d of datasets.filter(x => !x._custom && (x.positions || []).length > 0)) {
+    const pos = d.positions || [];
+    // 年度资格：2027 年度考试面向 2027 届应届生；用户届别 > year 则本轮不可报（仅演练）
+    const canThisRound = gradYear <= Number(d.year);
+    const ok = pos.filter(x =>
+      canApplyEdu(x.education, p.degree) &&
+      canApplyPolitical(x.political, p.political) &&
+      canApplyBase(x.baseYears, p.baseExp));
+    const quota = ok.reduce((a, x) => a + (Number(x.quota) || 0), 0);
+    rows.push({
+      exam: d.exam, year: d.year, total: pos.length, ok: ok.length, quota,
+      canThisRound,
+      note: canThisRound ? '' : `面向 ${d.year} 届应届生，你（${gradYear} 届）本轮不可报，仅作演练`
+    });
+  }
+
+  // 浙江选调专项
+  const xd = datasets.find(x => x.exam === '浙江选调');
+  let xdHtml = '';
+  if (xd && (xd.positions || []).length) {
+    const basicOk = selBasic;
+    const provOk = selProvince;
+    xdHtml = `<p style="margin-top:10px"><b>浙江选调专项判定</b>　基本资格（党员或四项条件之一）：
+      <span class="tag ${basicOk ? 'ok' : 'warn'}">${basicOk ? '✔ 满足' : '✘ 不满足（四项条件均未勾选且非党员）'}</span>
+      　省市机关（须党员 + ②③④之一）：
+      <span class="tag ${provOk ? 'ok' : 'warn'}">${provOk ? '✔ 满足' : '✘ 不满足'}</span>
+      ${basicOk ? '' : '<br><span class="muted" style="margin:0">条件是「或」关系，任一满足即可——在校获得一项校级表彰或奖学金，选调大门就开了。</span>'}</p>`;
+  }
+
+  const tableRows = rows.map(r => `<tr>
+    <td>${esc(r.exam)}<span class="tag gray" style="margin-left:5px">${esc(r.year)}</span></td>
+    <td class="num">${r.ok.toLocaleString('zh-CN')} / ${r.total.toLocaleString('zh-CN')}</td>
+    <td class="num">${r.quota.toLocaleString('zh-CN')}</td>
+    <td>${r.canThisRound ? '<span class="tag ok">本轮可报</span>' : '<span class="tag gray">演练</span>'} ${esc(r.note)}</td>
+  </tr>`).join('');
+
+  return { rows, xdHtml, tableRows, profile: p };
+}
+
+function renderProfileCheck() {
+  const r = runProfileCheck();
+  if (!r) return;
+  const el = document.getElementById('profileResult');
+  el.innerHTML = `
+    <table class="compare-table" style="margin-top:12px">
+      <thead><tr><th>考试</th><th>符合硬条件岗位 / 总数</th><th>招录合计</th><th>年度资格</th></tr></thead>
+      <tbody>${r.tableRows}</tbody>
+    </table>
+    ${r.xdHtml}
+    <p class="muted" style="margin-top:10px;margin-bottom:0">
+      口径：上表只判「硬性资格」（学历 / 政治面貌 / 基层年限），不含专业目录匹配（查询页的专业关键词仍按目录文本命中）；
+      选调基本资格按 2027 年度浙江公告判定。应届认定、年龄、体检等以官方最终审核为准。</p>`;
+}
+
+function applyProfileToFilters() {
+  const p = loadLS(PROFILE_KEY, null);
+  if (!p) { alert('请先保存报考档案'); return; }
+  document.getElementById('fEdu').value = p.degree === 'bachelor' ? 'bachelor' : '';
+  document.getElementById('fPolitical').value = p.political === 'none' ? 'none' : '';
+  document.getElementById('fBase').value = p.baseExp === 'none' ? 'none' : '';
+  document.getElementById('fMajor').value = p.major || '金融';
+  document.getElementById('fKeyword').value = '';
+  document.querySelector('.tab[data-tab="search"]').click();
+  renderResults();
+}
+
 /* ---------------- 事件绑定 ---------------- */
 function bindEvents() {
   document.getElementById('tabs').addEventListener('click', e => {
@@ -945,7 +1131,7 @@ function bindEvents() {
   document.getElementById('btnMatch').onclick = renderResults;
   document.getElementById('btnExport').onclick = exportExcel;
   document.querySelectorAll('.filter-card input, .filter-card select').forEach(el => {
-    el.addEventListener('change', () => { syncSortHeaders(); renderResults(); });
+    el.addEventListener('change', () => { syncSortHeaders(); renderResults(); saveLastFilters(); });
     if (el.type === 'text') el.addEventListener('keydown', ev => { if (ev.key === 'Enter') renderResults(); });
   });
   document.getElementById('btnReset').onclick = () => {
@@ -1049,19 +1235,27 @@ function bindEvents() {
 
   document.getElementById('btnImport').onclick = () => document.getElementById('importFile').click();
 
-  // 深色 / 浅色切换：写入 localStorage，下次启动由 index.html 头部脚本先行应用（无闪白）
+  // 主题三档：浅色 -> 深色 -> 跟随系统（auto 时监听系统切换实时变色）
   const themeToggle = document.getElementById('themeToggle');
   if (themeToggle) {
-    const syncLabel = () => {
-      themeToggle.textContent = document.documentElement.dataset.theme === 'dark' ? '浅色模式' : '深色模式';
+    const sysDark = () => window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+    const applyTheme = t => {
+      const eff = t === 'auto' ? (sysDark() ? 'dark' : 'light') : t;
+      document.documentElement.dataset.theme = eff;
+      try { localStorage.setItem('gk_theme', t); } catch (e) { /* 忽略 */ }
+      themeToggle.textContent = t === 'auto' ? '主题：跟随系统' : (eff === 'dark' ? '浅色模式' : '深色模式');
     };
-    syncLabel();
+    applyTheme((() => { try { return localStorage.getItem('gk_theme') || 'light'; } catch (e) { return 'light'; } })());
     themeToggle.onclick = () => {
-      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-      document.documentElement.dataset.theme = next;
-      try { localStorage.setItem('gk_theme', next); } catch (e) { /* 忽略 */ }
-      syncLabel();
+      let cur;
+      try { cur = localStorage.getItem('gk_theme') || 'light'; } catch (e) { cur = 'light'; }
+      applyTheme(cur === 'light' ? 'dark' : cur === 'dark' ? 'auto' : 'light');
     };
+    if (window.matchMedia) {
+      try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        if ((localStorage.getItem('gk_theme') || 'light') === 'auto') applyTheme('auto');
+      }); } catch (e) { /* 老内核无 addEventListener */ }
+    }
   }
 
   // 「检查官方数据更新」：主进程拉国考专题文章，命中报名统计则写回 guokao2027.json
@@ -1109,6 +1303,36 @@ function bindEvents() {
       alert('已清除');
     }
   };
+
+  // P1 数据备份
+  const btnBkExp = document.getElementById('btnBackupExport');
+  if (btnBkExp) btnBkExp.onclick = exportMyData;
+  const btnBkImp = document.getElementById('btnBackupImport');
+  if (btnBkImp) btnBkImp.onclick = () => document.getElementById('backupFile').click();
+  const backupFile = document.getElementById('backupFile');
+  if (backupFile) backupFile.addEventListener('change', e => {
+    if (e.target.files[0]) importMyData(e.target.files[0]);
+    e.target.value = '';
+  });
+
+  // P4 记住筛选开关
+  const kfToggle = document.getElementById('keepFiltersToggle');
+  if (kfToggle) {
+    kfToggle.checked = loadLS('gk_keep_filters', false);
+    kfToggle.onchange = () => {
+      localStorage.setItem('gk_keep_filters', JSON.stringify(kfToggle.checked));
+      if (kfToggle.checked) saveLastFilters();
+    };
+  }
+
+  // P3 我的报考档案
+  loadProfileToForm();
+  const btnPs = document.getElementById('btnProfileSave');
+  if (btnPs) btnPs.onclick = () => { saveProfileFromForm(); alert('已保存（仅存本机）'); };
+  const btnPc = document.getElementById('btnProfileCheck');
+  if (btnPc) btnPc.onclick = () => { saveProfileFromForm(); renderProfileCheck(); };
+  const btnPa = document.getElementById('btnProfileApply');
+  if (btnPa) btnPa.onclick = () => { saveProfileFromForm(); applyProfileToFilters(); };
 }
 
 function addTask() {
@@ -1175,7 +1399,12 @@ function updateShell() {
 function bootstrap(first) {
   loadBuiltins();
   fillRegionSelect();
-  if (first) applyFilterDefaults();   // 启动与「重置条件」共用同一套默认值
+  // P4：开关打开时恢复上次筛选；否则恢复出厂默认（applyFilterDefaults 同时服务「重置条件」）
+  if (first) {
+    if (!(loadLS('gk_keep_filters', false) && applySavedFilters(loadLS('gk_last_filters', null)))) {
+      applyFilterDefaults();
+    }
+  }
   syncSortHeaders();
   renderResults();
   renderAnalysis();
