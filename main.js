@@ -1,5 +1,6 @@
-const { app, BrowserWindow, shell } = require('electron');
+const { app, BrowserWindow, shell, ipcMain, Notification } = require('electron');
 const path = require('path');
+const { fetchOfficialUpdates } = require('./scripts/gk-updater.js');
 
 /* ⚠️ 必须在 app.whenReady() 之前调用。
  *
@@ -48,6 +49,25 @@ app.whenReady().then(() => {
   createWindow();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+
+  // 官方数据自动检查（国考报名统计等）：启动 15s 后静默跑一次，24h 限频在 updater 内部。
+  // 失败完全静默——网络不可用不影响应用本身。
+  setTimeout(() => {
+    fetchOfficialUpdates(false).then(r => {
+      if (r.updated) {
+        try {
+          new Notification('考公岗位信息助手', { body: '官方数据已更新：' + r.msg });
+        } catch (e) { /* 无通知环境忽略 */ }
+        BrowserWindow.getAllWindows().forEach(w => w.webContents.send('gk-data-updated', r.msg));
+      }
+    }).catch(() => { /* 静默 */ });
+  }, 15000);
+
+  // 数据管理页「检查官方数据更新」按钮（手动触发，忽略 24h 限频）
+  ipcMain.handle('gk:check-update', async () => {
+    try { return await fetchOfficialUpdates(true); }
+    catch (e) { return { updated: false, msg: '检查失败：' + e.message }; }
   });
 });
 

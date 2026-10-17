@@ -22,3 +22,6 @@ desktop.ini
 # 日志
 *.log
 npm-debug.log*
+
+# 运行时缓存（自动更新器的已读文章记录）
+data/.gk2027_update_cache.json

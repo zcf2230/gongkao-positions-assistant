@@ -1,7 +1,7 @@
 /* 考公岗位信息助手 - 渲染进程逻辑 */
 const fs = require('fs');
 const path = require('path');
-const { shell } = require('electron');
+const { shell, ipcRenderer } = require('electron');
 
 const DATA_DIR = path.join(__dirname, '..', 'data');
 // 顺序即优先级：同名考试以先出现的文件为主（overallStats/timeline/examStructure），positions 追加
@@ -1048,6 +1048,39 @@ function bindEvents() {
   });
 
   document.getElementById('btnImport').onclick = () => document.getElementById('importFile').click();
+
+  // 「检查官方数据更新」：主进程拉国考专题文章，命中报名统计则写回 guokao2027.json
+  const btnCheck = document.getElementById('btnCheckUpdate');
+  if (btnCheck) btnCheck.onclick = async () => {
+    btnCheck.disabled = true;
+    const old = btnCheck.textContent;
+    btnCheck.textContent = '检查中…';
+    try {
+      const r = await ipcRenderer.invoke('gk:check-update');
+      if (r && r.updated) {
+        loadBuiltins();
+        bootstrap(false);
+        alert('官方数据已更新：\n' + r.msg);
+      } else {
+        alert((r && r.msg) || '官方暂无新数据');
+      }
+    } catch (e) {
+      alert('检查失败（网络原因），稍后再试');
+    }
+    btnCheck.disabled = false;
+    btnCheck.textContent = old;
+  };
+
+  // 启动后自动检查命中时（main.js 主动推送）：重载数据 + 横幅提示
+  ipcRenderer.on('gk-data-updated', (e, msg) => {
+    loadBuiltins();
+    bootstrap(false);
+    const banner = document.getElementById('reminderBanner');
+    if (banner) {
+      banner.innerHTML = `<div class="banner-inner">✅ 官方数据已自动更新：${esc(msg)}<span class="banner-close" onclick="this.closest('.reminder-banner').classList.add('hidden')">✕</span></div>`;
+      banner.classList.remove('hidden');
+    }
+  });
   document.getElementById('importFile').addEventListener('change', e => {
     if (e.target.files[0]) handleImportFile(e.target.files[0]);
     e.target.value = '';
