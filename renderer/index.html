@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>考公岗位信息助手</title>
+  <script>
+    // 主题在 CSS 之前设置，避免深色用户启动时闪白
+    try { document.documentElement.dataset.theme = localStorage.getItem('gk_theme') === 'dark' ? 'dark' : 'light'; } catch (e) {}
+  </script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -51,6 +55,8 @@
         <div class="snap-n" id="snapCount">加载中…</div>
       </div>
       <div class="side-links">
+        <a href="javascript:void(0)" id="themeToggle">深色模式</a>
+        <span class="sep">·</span>
         <span id="appVersion">v1.0</span>
         <span class="sep">·</span>
         <span>本地数据</span>

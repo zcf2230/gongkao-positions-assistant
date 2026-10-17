@@ -36,6 +36,17 @@
   --primary-light: var(--lime-soft);
 
   --radius: 10px;
+
+  /* 强调组件的前景色（深色模式下主按钮反转为荧光底 + 墨字） */
+  --btn-fg: #ffffff;
+  --primary-hover: #2f3d26;
+  --accent-on-lime: var(--forest);
+  --note-bg: #fdfbef;
+  --note-ink: #6b5a1a;
+  --fav-star: #d6d3ca;
+  --scroll-thumb: #dcd9d0;
+  --scroll-border: var(--surface);
+  --shadow-modal: rgba(20, 22, 16, .22);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -92,8 +103,8 @@ body {
 }
 .tab:hover { background: var(--surface-2); color: var(--ink); }
 .tab svg { width: 15px; height: 15px; stroke: var(--ink-3); stroke-width: 1.6; fill: none; flex: none; }
-.tab.active { background: var(--lime); color: var(--forest); font-weight: 650; }
-.tab.active svg { stroke: var(--forest); }
+.tab.active { background: var(--lime); color: var(--accent-on-lime); font-weight: 650; }
+.tab.active svg { stroke: var(--accent-on-lime); }
 .tab-text { flex: 1; }
 .tab-badge {
   font-size: 10px; font-weight: 700; line-height: 15px;
@@ -101,7 +112,7 @@ body {
   background: var(--surface-2); border: 1px solid var(--line);
   color: var(--ink-3);
 }
-.tab.active .tab-badge { background: var(--forest); border-color: var(--forest); color: var(--lime); }
+.tab.active .tab-badge { background: var(--accent-on-lime); border-color: var(--accent-on-lime); color: var(--lime); }
 
 .side-foot { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line-soft); }
 .snap {
@@ -193,7 +204,7 @@ main {
 .checkboxes label:has(input:checked)::before { opacity: .85; }
 
 /* 未识别的考试（自定义导入）用中性深色 */
-.checkboxes label:has(input:checked) { background: var(--forest); border-color: var(--forest); color: #fff; }
+.checkboxes label:has(input:checked) { background: var(--forest); border-color: var(--forest); color: var(--btn-fg); }
 .checkboxes label[data-exam="国考"]:has(input:checked) { background: #eaeff8; border-color: #ccd8ee; color: #23406e; }
 .checkboxes label[data-exam="浙江选调"]:has(input:checked) { background: var(--lime-soft); border-color: #d8e88a; color: #354311; }
 .checkboxes label[data-exam="浙江省考"]:has(input:checked) { background: #e6f2ed; border-color: #c6e0d4; color: #1b5e4a; }
@@ -263,8 +274,8 @@ main {
   cursor: pointer; transition: all .14s;
 }
 .btn:hover { border-color: var(--ink-3); color: var(--ink); background: var(--surface-2); }
-.btn.primary { background: var(--forest); border-color: var(--forest); color: #fff; }
-.btn.primary:hover { background: #2f3d26; border-color: #2f3d26; }
+.btn.primary { background: var(--forest); border-color: var(--forest); color: var(--btn-fg); }
+.btn.primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
 .btn.danger { color: var(--danger); border-color: #efd2cf; background: var(--surface); }
 .btn.danger:hover { background: var(--danger-soft); border-color: #e0b5b1; }
 .btn.small { height: 25px; padding: 0 9px; font-size: 11.5px; }
@@ -288,7 +299,7 @@ main {
 .stat .k { font-size: 10.5px; color: var(--ink-3); margin-top: 1px; }
 .stat.key .v {
   display: inline-block; background: var(--lime);
-  padding: 0 5px; border-radius: 4px; color: var(--forest);
+  padding: 0 5px; border-radius: 4px; color: var(--accent-on-lime);
 }
 
 /* ===================== 表格 ===================== */
@@ -354,11 +365,11 @@ a.srclink:hover { color: var(--forest); text-decoration: underline; }
 .table-note {
   display: flex; align-items: center; gap: 8px;
   padding: 9px 15px; border-top: 1px solid var(--line);
-  background: #fdfbef; color: #6b5a1a; font-size: 11.5px;
+  background: var(--note-bg); color: var(--note-ink); font-size: 11.5px;
 }
 .table-note::before {
   content: "截断"; flex: none;
-  background: var(--lime); color: var(--forest);
+  background: var(--lime); color: var(--accent-on-lime);
   border-radius: 4px; padding: 0 6px; font-weight: 700; font-size: 10.5px;
 }
 .empty-tip { padding: 34px; text-align: center; color: var(--ink-3); font-size: 12.5px; }
@@ -397,11 +408,11 @@ a.srclink:hover { color: var(--forest); text-decoration: underline; }
 
 /* ===================== 提醒横幅 ===================== */
 .reminder-banner {
-  background: #fdfbef;
+  background: var(--note-bg);
   border: 1px solid #eee3bd;
   border-left: 3px solid var(--lime);
   border-radius: 8px;
-  color: #6b5a1a;
+  color: var(--note-ink);
   padding: 9px 13px;
   font-size: 12px; line-height: 1.65;
   margin-bottom: 13px;
@@ -409,7 +420,7 @@ a.srclink:hover { color: var(--forest); text-decoration: underline; }
 .reminder-banner .banner-inner { position: relative; padding-right: 22px; }
 .banner-close {
   position: absolute; right: 0; top: -1px;
-  cursor: pointer; color: #a08441; font-size: 13px; padding: 0 4px;
+  cursor: pointer; color: var(--note-ink); opacity: .6; font-size: 13px; padding: 0 4px;
 }
 .banner-close:hover { color: var(--danger); }
 .banner-error { color: var(--danger); }
@@ -478,7 +489,7 @@ a.srclink:hover { color: var(--forest); text-decoration: underline; }
   flex-wrap: wrap; font-size: 12.5px;
 }
 .fav-item .info { flex: 1; min-width: 240px; }
-.fav-star { cursor: pointer; font-size: 14px; color: #d6d3ca; }
+.fav-star { cursor: pointer; font-size: 14px; color: var(--fav-star); }
 .fav-star.on { color: #c9a227; }
 
 .compare-table { width: 100%; border-collapse: collapse; margin-top: 11px; }
@@ -532,7 +543,7 @@ a.srclink:hover { color: var(--forest); text-decoration: underline; }
 /* ===================== 弹窗 ===================== */
 .modal-mask {
   position: fixed; inset: 0; z-index: 50;
-  background: rgba(20, 22, 16, .42);
+  background: rgba(10, 11, 8, .5);
   backdrop-filter: blur(2px);
   display: flex; align-items: center; justify-content: center;
 }
@@ -541,7 +552,7 @@ a.srclink:hover { color: var(--forest); text-decoration: underline; }
   border-radius: 12px;
   padding: 20px 24px;
   width: min(720px, 92vw); max-height: 86vh; overflow-y: auto;
-  box-shadow: 0 18px 50px rgba(20, 22, 16, .22);
+  box-shadow: 0 18px 50px var(--shadow-modal);
 }
 .modal h3 { font-size: 15px; font-weight: 700; letter-spacing: -.01em; margin-bottom: 13px; }
 .detail-grid { display: grid; grid-template-columns: 118px 1fr; gap: 7px 12px; font-size: 12.5px; }
@@ -554,7 +565,7 @@ a.srclink:hover { color: var(--forest); text-decoration: underline; }
   font: inherit; font-size: 12px; resize: vertical; outline: none;
 }
 .modal textarea:focus { border-color: var(--forest); box-shadow: 0 0 0 3px rgba(35,45,28,.09); }
-.star-pick { cursor: pointer; font-size: 18px; color: #d6d3ca; user-select: none; }
+.star-pick { cursor: pointer; font-size: 18px; color: var(--fav-star); user-select: none; }
 .star-pick.on { color: #c9a227; }
 .modal .close-bar { margin-top: 17px; text-align: right; display: flex; gap: 8px; justify-content: flex-end; }
 .koubei-item {
@@ -589,5 +600,84 @@ a.srclink:hover { color: var(--forest); text-decoration: underline; }
 /* ===================== 滚动条 ===================== */
 ::-webkit-scrollbar { width: 9px; height: 9px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #dcd9d0; border-radius: 6px; border: 2px solid var(--surface); }
-::-webkit-scrollbar-thumb:hover { background: #c9c5ba; }
+::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 6px; border: 2px solid var(--scroll-border); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+
+
+/* ===================== 深色模式 =====================
+   设计语言不变：暖纸底换成炭底，荧光黄绿仍是唯一强调色且更亮眼。
+   切换开关在侧栏底部（localStorage: gk_theme）。 */
+html[data-theme="dark"] {
+  --paper: #14161b;
+  --surface: #1c1f25;
+  --surface-2: #22262d;
+  --ink: #e7e9ed;
+  --ink-2: #aab0b8;
+  --ink-3: #7e848e;
+  --line: #2f333b;
+  --line-soft: #272b32;
+
+  --lime: #d9f24d;
+  --lime-soft: #2f3614;
+  --forest: #d9f24d;          /* 深色下「主色实底」反转为荧光底 */
+  --primary-hover: #e9fa82;
+
+  --ok: #4ade80;
+  --ok-soft: #16301f;
+  --warn: #fbbf24;
+  --warn-soft: #362a10;
+  --danger: #f87171;
+  --danger-soft: #3b1c1a;
+
+  --btn-fg: #16181d;
+  --accent-on-lime: #16181d;
+  --note-bg: #2b2b17;
+  --note-ink: #e5db8e;
+  --fav-star: #4d525b;
+  --scroll-thumb: #3a3f47;
+  --shadow-modal: rgba(0, 0, 0, .65);
+}
+
+html[data-theme="dark"] .logo { color: var(--btn-fg); }
+
+/* 考试标签：浅色纸 → 深色底亮字 */
+html[data-theme="dark"] .tag.exam-guokao { background: #1f2a44; color: #93b4f5; }
+html[data-theme="dark"] .tag.exam-xuandiao { background: #333c12; color: #d9f24d; }
+html[data-theme="dark"] .tag.exam-zhejiang { background: #14352b; color: #5fd4b5; }
+html[data-theme="dark"] .tag.exam-shandong { background: #3a2510; color: #f0a860; }
+html[data-theme="dark"] .tag.exam-shanghai { background: #341c33; color: #db8fd6; }
+html[data-theme="dark"] .tag.gray { background: #2a2e35; color: var(--ink-3); }
+html[data-theme="dark"] .tag.ok { background: var(--ok-soft); color: var(--ok); }
+html[data-theme="dark"] .tag.warn { background: var(--warn-soft); color: var(--warn); }
+html[data-theme="dark"] .tag.folded { background: var(--danger-soft); color: var(--danger); border-color: #54251f; }
+
+/* 筛选 chips 选中态 */
+html[data-theme="dark"] .chip-on-default { color: var(--btn-fg); }
+html[data-theme="dark"] .checkboxes label:has(input:checked) { color: var(--btn-fg); }
+html[data-theme="dark"] .checkboxes label[data-exam="国考"]:has(input:checked) { background: #1f2a44; border-color: #31456e; color: #93b4f5; }
+html[data-theme="dark"] .checkboxes label[data-exam="浙江选调"]:has(input:checked) { background: #333c12; border-color: #4a5716; color: #d9f24d; }
+html[data-theme="dark"] .checkboxes label[data-exam="浙江省考"]:has(input:checked) { background: #14352b; border-color: #1d4a3c; color: #5fd4b5; }
+html[data-theme="dark"] .checkboxes label[data-exam="山东省考"]:has(input:checked) { background: #3a2510; border-color: #523313; color: #f0a860; }
+html[data-theme="dark"] .checkboxes label[data-exam="上海市考"]:has(input:checked) { background: #341c33; border-color: #4a2948; color: #db8fd6; }
+html[data-theme="dark"] .checkboxes label { border-color: var(--line); background: var(--surface); color: var(--ink-2); }
+html[data-theme="dark"] .checkboxes label:hover { border-color: var(--ink-3); color: var(--ink); }
+
+/* 图表 */
+html[data-theme="dark"] .chart-bar { background: linear-gradient(90deg, #55663f, #8ba06a); }
+html[data-theme="dark"] .chart-bar.hot { background: linear-gradient(90deg, #b34034, #e07b72); }
+
+/* 杂项 */
+html[data-theme="dark"] .reminder-banner { border-color: #3d3d20; }
+html[data-theme="dark"] .issue-box { background: #2b1d1c; border-color: #54251f; color: var(--ink-2); }
+html[data-theme="dark"] .tl-item.next { background: var(--lime-soft); }
+html[data-theme="dark"] .tl-item.next .stage, html[data-theme="dark"] .tl-item.next .date { color: var(--lime); }
+html[data-theme="dark"] .snap { background: var(--surface-2); }
+html[data-theme="dark"] .new-task input, html[data-theme="dark"] .filter-item input[type=text], html[data-theme="dark"] .filter-item select, html[data-theme="dark"] .actions select {
+  background: var(--surface-2); color: var(--ink);
+}
+html[data-theme="dark"] .compare-table th { background: var(--surface-2); }
+html[data-theme="dark"] .modal textarea { background: var(--surface-2); color: var(--ink); }
+html[data-theme="dark"] .map-grid select { background: var(--surface-2); color: var(--ink); }
+html[data-theme="dark"] .pos-table tbody tr:hover { background: #20242b; }
+html[data-theme="dark"] .side-links { color: var(--ink-3); }
+html[data-theme="dark"] .statbar { border-color: var(--line); }

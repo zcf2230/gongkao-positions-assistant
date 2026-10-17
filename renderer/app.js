@@ -1049,6 +1049,21 @@ function bindEvents() {
 
   document.getElementById('btnImport').onclick = () => document.getElementById('importFile').click();
 
+  // 深色 / 浅色切换：写入 localStorage，下次启动由 index.html 头部脚本先行应用（无闪白）
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle) {
+    const syncLabel = () => {
+      themeToggle.textContent = document.documentElement.dataset.theme === 'dark' ? '浅色模式' : '深色模式';
+    };
+    syncLabel();
+    themeToggle.onclick = () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      try { localStorage.setItem('gk_theme', next); } catch (e) { /* 忽略 */ }
+      syncLabel();
+    };
+  }
+
   // 「检查官方数据更新」：主进程拉国考专题文章，命中报名统计则写回 guokao2027.json
   const btnCheck = document.getElementById('btnCheckUpdate');
   if (btnCheck) btnCheck.onclick = async () => {
