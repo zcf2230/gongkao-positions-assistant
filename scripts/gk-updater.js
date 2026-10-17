@@ -15,6 +15,7 @@
  * 独立可跑：node scripts/gk-updater.js  （无 Electron 依赖，便于测试）
  * ===================================================================== */
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
@@ -27,9 +28,16 @@ const CACHE_FILE = path.join(DATA_DIR, '.gk2027_update_cache.json');
 const GK2027_FILE = path.join(DATA_DIR, 'guokao2027.json');
 const CHECK_INTERVAL = 24 * 3600 * 1000;   // 自动模式 24h 一次
 
-function httpGet(url, timeout = 20000) {
+function httpGet(url, timeout = 20000, depth = 0) {
   return new Promise((resolve, reject) => {
-    const req = http.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 gongkao-helper' } }, res => {
+    const mod = url.startsWith('https') ? https : http;
+    const req = mod.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 gongkao-helper' } }, res => {
+      // 华图专题页 301 http->https，跟随一层重定向即可
+      if ([301, 302].includes(res.statusCode) && res.headers.location && depth < 2) {
+        res.resume();
+        const next = new URL(res.headers.location, url).toString();
+        return httpGet(next, timeout, depth + 1).then(resolve, reject);
+      }
       if (res.statusCode !== 200) { res.resume(); return reject(new Error('HTTP ' + res.statusCode)); }
       const chunks = [];
       res.on('data', c => chunks.push(c));
@@ -119,6 +127,44 @@ function applyStats(article, wan) {
   return { title: article.title, wan, totalApplicants: n, avgRatio: d.overallStats.avgRatio };
 }
 
+/* 第三方口径：华图教育报名人数统计专题（报名期每日更新）。
+ * 口径说明：华图的「人报名」= 报名 + 待审总量，「过审」为其汇总口径——
+ * 都不是官方通报（官方过审数在报名结束后统一发布，走上面的文章监控）。
+ * 写入 timeline 时必须带「第三方」标注，且与上一条数字相同则跳过（每日更新，一天一节点）。 */
+const HUATU_URL = 'https://ah.huatu.com/zt/gkrstj/';
+async function fetchHuatuStats() {
+  let html;
+  try { html = await httpGet(HUATU_URL); } catch (e) { return { updated: false, msg: '' }; }
+  const text = String(html).replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ');
+  const m = text.match(/([\d,]+)\s*人报名[^\d]{0,40}?([\d,]+)\s*人过审/);
+  if (!m) return { updated: false, msg: '' };
+  const apply = Number(m[1].replace(/,/g, ''));
+  const passed = Number(m[2].replace(/,/g, ''));
+  if (!(apply > 0 && passed > 0)) return { updated: false, msg: '' };
+  const avg = (text.match(/全国平均竞争比([\d.]+)/) || [])[1] || null;
+  const hot = (text.match(/竞争最激烈的职位\s*([\d.]+):1/) || [])[1] || null;
+  const upd = (text.match(/更新时间[:：]\s*([\d-]+ [\d:]+)/) || [])[1] || '';
+
+  const d = JSON.parse(fs.readFileSync(GK2027_FILE, 'utf8'));
+  d.timeline = d.timeline || [];
+  const stage = '报名统计（第三方口径·华图教育，每日更新）';
+  const last = [...d.timeline].reverse().find(t => t.stage === stage);
+  if (last && String(last.passed) === String(passed)) return { updated: false, msg: '' };
+  d.timeline.push({
+    stage,
+    date: localDateStr(new Date()),
+    notes: `截至 ${upd || localDateStr(new Date())}：报名 ${apply.toLocaleString('zh-CN')} 人（含待审）、过审 ${passed.toLocaleString('zh-CN')} 人`
+      + (avg ? `、全国平均竞争比 ${avg}:1` : '')
+      + (hot ? `、最热职位 ${hot}:1` : '')
+      + '。口径：华图教育第三方统计（报名含待审），非官方通报；官方过审总数以报名结束后官方发布为准',
+    source: HUATU_URL,
+    passed,
+    auto: true
+  });
+  fs.writeFileSync(GK2027_FILE, JSON.stringify(d, null, 1), 'utf8');
+  return { updated: true, msg: `华图第三方统计：报名 ${apply.toLocaleString('zh-CN')} / 过审 ${passed.toLocaleString('zh-CN')}` };
+}
+
 function loadCache() {
   try { return JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8')); } catch { return { lastCheck: 0, seenIds: [], applied: [] }; }
 }
@@ -163,6 +209,12 @@ async function fetchOfficialUpdates(manual = false) {
     }
   }
 
+  // 第三方逐日统计（华图），失败静默
+  try {
+    const h = await fetchHuatuStats();
+    if (h.updated) { results.push({ title: '华图报名统计（第三方口径）', wan: null, msg: h.msg }); }
+  } catch (e) { /* 静默 */ }
+
   cache.lastCheck = now;
   cache.seenIds = [...seen].slice(-500);
   cache.applied = applied.slice(-200);
@@ -171,7 +223,7 @@ async function fetchOfficialUpdates(manual = false) {
   return {
     updated: results.length > 0,
     msg: results.length
-      ? results.map(r => `「${r.title}」→ 报名 ${r.wan} 万人，平均竞争比约 ${r.avgRatio}:1`).join('；')
+      ? results.map(r => r.msg || `「${r.title}」→ 报名 ${r.wan} 万人，平均竞争比约 ${r.avgRatio}:1`).join('；')
       : (manual ? '官方暂无新的报名统计（通报通常在报名中后期与截止后发布）' : ''),
     checked: fresh.length
   };

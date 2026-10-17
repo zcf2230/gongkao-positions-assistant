@@ -29,18 +29,42 @@
    "source": "https://www.gemu.cn"
   },
   {
+   "stage": "报名统计（第三方口径·华图教育，每日更新）",
+   "date": "2026-10-15",
+   "notes": "截至首日 17:00：报名 209,000 人（华图口径 218,397）、过审 7,209 人。来源：中青在线 news.cyol.com/gb/news/articles/2026-10/16/content_wdoAGKURVJ.html；口径：华图教育第三方统计（报名含待审），非官方通报",
+   "source": "https://ah.huatu.com/zt/gkrstj/",
+   "passed": 7209,
+   "auto": true
+  },
+  {
    "stage": "网上报名（按往年惯例10月15日-24日，以官方公告为准）",
    "date": "2026-10-15 至 2026-10-24（惯例预测）",
    "source": "https://www.gemu.cn"
   },
   {
-   "stage": "笔试（公共科目）",
-   "date": "2026-11-29",
-   "source": "https://www.gemu.cn"
+   "stage": "报名统计（第三方口径·华图教育，每日更新）",
+   "date": "2026-10-16",
+   "notes": "截至次日 19:00：报名 357,631 人（含待审 260,042）、过审 97,589 人、全国平均竞争比 10:1、最热职位 1414:1。来源：ah.huatu.com/2026/1016/3293089.html；口径：华图教育第三方统计（报名含待审），非官方通报",
+   "source": "https://ah.huatu.com/zt/gkrstj/",
+   "passed": 97589,
+   "auto": true
+  },
+  {
+   "stage": "报名统计（第三方口径·华图教育，每日更新）",
+   "date": "2026-10-17",
+   "notes": "截至 2026-10-17 13:10：报名 444,268 人（含待审）、过审 187,498 人、全国平均竞争比 5.3:1、最热职位 1466.0:1。口径：华图教育第三方统计（报名含待审），非官方通报；官方过审总数以报名结束后官方发布为准",
+   "source": "https://ah.huatu.com/zt/gkrstj/",
+   "passed": 187498,
+   "auto": true
   },
   {
    "stage": "专业科目笔试（金监/证监会/公安等，预计笔试前一日下午）",
    "date": "2026-11-28（预计）",
+   "source": "https://www.gemu.cn"
+  },
+  {
+   "stage": "笔试（公共科目）",
+   "date": "2026-11-29",
    "source": "https://www.gemu.cn"
   },
   {
